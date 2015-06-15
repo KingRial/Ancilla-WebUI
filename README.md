@@ -1,13 +1,10 @@
-[Ancilla Web UI](http://ancilla.com/) — Free Home Automation [![Build Status](https://travis-ci.org/ancilla/ancilla.svg)](https://travis-ci.org/ancilla/ancilla)
+Ancilla Web UI — Free Home Automation
 ==================================================
 
-[![ZenHub](https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)](https://zenhub.io)
-[![Join the chat at https://gitter.im/ancilla/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ancilla/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-Ancilla it's the web user interface part of the [Ancilla](http://ancilla.com/) project.
+This is the web user interface part of the Ancilla project.
 Built using the framework [Aurelia](http://aurelia.io/) the purpose is to create a fully customizable and free solution to handle the Ancilla UI.
 
-*Please be aware this is just an experimental version used to test technologies and solutions; it's still far from being complete*
+*Please be aware this is just an experimental version used to test technologies and solutions; it's still far from being the final result*
 
 *Any idea or contribution is welcome!*
 
