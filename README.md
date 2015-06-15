@@ -19,7 +19,7 @@ Project documentation
 ----------------------------
 TODO
 
-How to install your own Ancilla
+How to compile Ancilla Web UI
 ----------------------------
 
 ## Running The App
@@ -49,13 +49,30 @@ To run the app, follow these steps.
   ```shell
   gulp
   ```
-6. Browse to [http://localhost:9000](http://localhost:9000) to see the app. You can make changes in the code found under `src` and the browser should auto-refresh itself as you save files.
+  or
+  ```shell
+  gulp watch
+  ```
+
+  If you desire a minified and compiled version of the Web UI use:
+  ```shell
+  gulp watch-release
+  ```
+
+  If you desire the list of gulp actions use:
+  ```shell
+  gulp help
+  ```
+
+6. Browse to [http://localhost:9000](http://localhost:9000) to see the app. You can make changes in the code found under `Compiler/source` and the browser should auto-refresh itself as you save files.
 
 > Note: At present there is a bug in the HTMLImports polyfill which only occurs on IE. We have submitted a pull request to the team with the fix. In the mean time, if you want to test on IE, you can work around the issue by explicitly adding a script tag before you load system.js. The script tag should look something like this (be sure to confirm the version number):
 
 ```html
 <script src="jspm_packages/github/webcomponents/webcomponentsjs@0.5.2/HTMLImports.js"></script>
 ```
+
+7. The compiled web app will be found under `Compiler/development` or `Compiler/release`
 
 Running The Unit Tests
 ----------------------------
