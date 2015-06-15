@@ -1,0 +1,39 @@
+<template>
+	<!-- Navigation -->
+	<nav>
+    <div class="nav-wrapper">
+			<ul class="left">
+				<li>
+					<a>
+						<i title="${getConstant('_LANG_STATUS')}" class="app-status ${__bAncillaIsConnected ? 'mdi-social-location-city' : 'mdi-alert-warning'}" data-activates="app-status"></i>
+					</a>
+				</li>
+			</ul>
+      <ul class="right" show.bind="__bAncillaIsConnected" >
+				<li repeat.for="oItem of __oRouter.navigation" class="${oItem.isActive ? 'active' : ''}" >
+					<a href.bind="oItem.href">
+						<i class="${oItem.config.classCSS}" title="${oItem.title}"></i>
+					</a>
+				</li>
+				<li>
+					<a>
+						<i title="${getConstant('_LANG_MENU')}" class="navigation-menu mdi-action-view-list" data-activates="navigation-menu"></i>
+					</a>
+				</li>
+      </ul>
+    </div>
+  </nav>
+	<!-- Viewport -->
+	<div class="viewport with-header">
+		<!-- App Status -->
+		<require from='./app-status' as="status"></require>
+		<status></status>
+		<!-- Router Content -->
+		<div class="viewport-content" show.bind="__bAncillaIsConnected" >
+			<router-view></router-view>
+		</div>
+		<!-- App Message -->
+		<require from='./app-message' as="message"></require>
+		<message when.bind="!__bAncillaIsConnected" message="_LANG_CONNECTING" ></message>
+	</div>
+</template>

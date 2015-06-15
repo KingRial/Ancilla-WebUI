@@ -1,0 +1,21 @@
+<template>
+  <ul class="container">
+    <li>
+      <div class="input-field col s12">
+        <i class="mdi-action-account-circle prefix"></i>
+        <input id="username" type="text" class="validate" value.bind="sUsername" >
+        <label for="username">${getConstant('_LANG_USERNAME')}</label>
+      </div>
+    </li>
+    <li>
+      <div class="input-field col s12">
+        <i class="mdi-hardware-security prefix"></i>
+        <input id="password" type="password" class="validate" value.bind="sPassword" >
+        <label for="password">${getConstant('_LANG_PASSWORD')}</label>
+      </div>
+    </li>
+    <li class="center" >
+      <div class="waves-effect waves-light btn-large" click.delegate="login()">${getConstant('_LANG_LOGIN')}</div>
+    </li>
+  </ul>
+</template>

@@ -1,0 +1,13 @@
+<template>
+  <div class="obj-${oObj.id} widget" >
+    <div class="icon ${oCurrentOptions.css}" ></div>
+    <div class="label" >${oObj.name}</div>
+    <div class="status" >${getConstant(oCurrentOptions.label)}</div>
+    <ul if.bind="hasOptions" class="actions" >
+      <li repeat.for="oOption of oOptions" class="option value-${oOption.value}" >
+        <button click.delegate="$parent.oObj.setValue(oOption.value)">${$parent.getConstant(oOption.label)}</button>
+      </li>
+    </ul>
+    <div if.bind="!hasOptions">${getConstant('_LANG_WIDGET_MISSING_OPTIONS')}</div>
+  <div>
+</template>

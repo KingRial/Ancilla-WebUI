@@ -1,0 +1,172 @@
+// Importing SCSS mixin library ( http://bourbon.io/ )
+// @import "bourbon/_bourbon.scss";
+// CSS resets ( http://necolas.github.io/normalize.css/ )
+// @import 'normalize';
+
+// Extending Materialize
+.center {
+  width: 100%;
+}
+
+.valign-wrapper {
+  height: 100%;
+}
+
+// Viewport
+.viewport {
+  position: absolute;
+  margin: auto 0px;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  overflow: hidden;
+}
+.viewport .viewport-content {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  width: 100%;
+}
+.viewport.with-header {
+  top: 64px;
+}
+.viewport.with-footer {
+  bottom: 64px;
+}
+
+.button {
+  cursor: pointer;
+}
+
+// Disabling user select
+/*
+@include user-select(none);
+
+html, body, .is-container {
+  width: 100%;
+  min-height:100%;
+  padding:0px;
+  margin:0px;
+}
+
+.viewport header {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  width: 100%;
+  height: 50px;
+}
+.viewport footer {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  width: 100%;
+  height: 50px;
+}
+
+// Menu
+.menu {
+  float: left;
+  postion: relative
+}
+.menu label {
+  position: absolute;
+  left: 0px;
+}
+.menu ul {
+  margin: 0px;
+  list-style: none;
+  position: absolute;
+  right: 50px;
+}
+.menu ul li {
+  float: left;
+}
+
+.menu ul li a {
+  float: left;
+  width: 50px;
+  height: 50px;
+  background-repeat:no-repeat;
+  background-size: 50px 50px;
+}
+
+.menu ul li a.runtime {
+  background-image: url(../images/menu/runtime.svg);
+}
+.menu ul li a.administration {
+  background-image: url(../images/menu/administration.svg);
+}
+.menu ul li a.developer {
+  background-image: url(../images/menu/developer.svg);
+}
+.menu ul li a.logout {
+  background-image: url(../images/menu/logout.svg);
+}
+
+// Status Button
+div.app-status {
+  position: absolute;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.225);
+  left: -300px;
+  width: 300px;
+  height: 100%;
+}
+
+div.app-status button.status {
+  position: absolute;
+  right: -50px;
+  border: 0px;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  background-repeat:no-repeat;
+  background-size: 50px 50px;
+}
+
+div.app-status .content {
+  width: 100%;
+  height: 100%;
+  background-color: #f6f6f6;
+}
+
+div.app-status button.status.ok{
+  background-image: url(../images/status/app-status-ok.svg);
+}
+
+div.app-status button.status.error{
+  background-image: url(../images/status/app-status-error.svg);
+}
+
+div.app-status button.status.warning{
+  background-image: url(../images/status/app-status-warning.svg);
+}
+
+// Animations
+.viewport, .viewport header:first-child, .viewport .viewport-content, .viewport footer:first-child, .viewport div.app-status {
+  @include transition(all 1s ease-in-out);
+}
+
+// Moving entire viewport to right and back
+.viewport.right header:first-child, .viewport.right .viewport-content, .viewport.right footer:first-child {
+  left: 300px;
+}
+
+.viewport.right div.app-status {
+  left: 0px;
+}
+
+// Moving entire viewport to left and back
+.viewport.left header:first-child, .viewport.left .viewport-content, .viewport.left footer:first-child {
+  left: -300px;
+}
+
+.viewport.left div.app-status {
+  left: -600px;
+}
+*/

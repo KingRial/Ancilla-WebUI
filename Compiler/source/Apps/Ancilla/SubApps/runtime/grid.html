@@ -1,0 +1,14 @@
+<template>
+	<div class="grid-container" if.one-way="__oLoadedObj" >
+		<div class="row" if.one-way="__oLoadedObj.getChildren().length>0" >
+      <div repeat.for="oObj of __oLoadedObj.getChildren()" class="obj-${oObj.getID()} col s12 m6" show.bind="oObj.getWidget().getID()>0">
+				<compose
+				  model.bind="oObj"
+				  view-model="./widgets/${oObj.getWidget().getModel()}">
+				</compose>
+			</div>
+    </div>
+		<div if.one-way="__oLoadedObj.getChildren().length==0" >${getConstant('_LANG_GRID_EMPTY')}</div>
+	</div>
+	<div if.one-way="!__oLoadedObj" >${getConstant('_LANG_GRID_ERROR_UNABLE_LOAD_TARGET')}</div>
+</template>

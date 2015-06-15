@@ -1,0 +1,5 @@
+node_modules
+/Compiler/development
+/Compiler/release
+/test/e2e/dist
+/Compiler/source/libs/External/

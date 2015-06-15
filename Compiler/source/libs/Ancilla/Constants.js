@@ -1,0 +1,26 @@
+const Constants = {
+  _NO_ERROR: 0,
+  _LOG_NONE: 0,
+  _LOG_ERROR: 1,
+  _LOG_WARN: 2,
+  _LOG_INFO: 3,
+  _LOG_DEBUG: 4,
+  _EVENT_TYPE_INTRODUCE: 'introduce',
+  _EVENT_TYPE_LOGIN: 'login',
+  _EVENT_TYPE_LOGOUT: 'logout',
+  _EVENT_TYPE_OBJ_LOAD_BY_ID: 'loadObjByID',
+  _EVENT_TYPE_OBJ_LOAD_BY_TYPE: 'loadObjByType',
+  _EVENT_TYPE_CREATE: 'create',
+  _EVENT_TYPE_UPDATE: 'update',
+  _EVENT_TYPE_DELETE: 'delete',
+  _PORT_HTTP: 80,
+  _PORT_HTTPS: 443,
+  _PORT_WS: 10080,
+  _PORT_WSS: 10443,
+  _OBJECT_TYPE_GROUP: 'GROUP',
+  _OBJECT_TYPE_USER: 'USER',
+  _OBJECT_TYPE_TECHNOLOGY: 'TECHNOLOGY',
+  _RELATION_TYPE_LOGGEDAS: 'LOGGEDAS',
+  _TECHNOLOGY_TYPE_WEB: 'Web'
+};
+export default Constants;

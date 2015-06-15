@@ -1,0 +1,61 @@
+{
+  "name": "Compiler",
+  "version": "0.0.1",
+  "description": "A starter kit for compile web Apps.",
+  "keywords": [
+    "ikon",
+    "compiler"
+  ],
+  "homepage": "http://",
+  "bugs": {
+    "url": "http://"
+  },
+  "license": "MIT",
+  "author": "Riccardo Re <kingrichard1980@gmail.com> (http://)",
+  "main": "",
+  "repository": {
+    "type": "git",
+    "url": "http://"
+  },
+  "dependencies": {
+    "browser-sync": "^1.8.1",
+    "conventional-changelog": "0.0.11",
+    "del": "^1.1.0",
+    "gulp": "^3.8.10",
+    "gulp-babel": "^5.1.0",
+    "gulp-bump": "^0.1.11",
+    "gulp-changed": "^1.1.0",
+    "gulp-jshint": "^1.9.0",
+    "gulp-plumber": "^0.6.6",
+    "gulp-protractor": "^0.0.12",
+    "gulp-sourcemaps": "^1.3.0",
+    "gulp-yuidoc": "^0.1.2",
+    "gulp-task-listing": "^1.0.0",
+    "gulp-debug": "^2.0.0",
+    "gulp-if": "^1.2.5",
+    "gulp-rename": "^1.2.0",
+    "gulp-uglify": "^1.1.0",
+    "gulp-prompt": "^0.1.2",
+    "gulp-nop": "^0.0.3",
+    "map-stream": "^0.0.5",
+    "gulp-shell": "^0.4.2",
+    "gulp-php2html": "^0.0.8",
+    "gulp-minify-html": "^1.0.1",
+    "gulp-sass": "^1.3.3",
+    "promise": "^6.1.0",
+    "jasmine-core": "^2.1.3",
+    "jshint-stylish": "^1.0.0",
+    "karma": "^0.12.31",
+    "karma-babel-preprocessor": "^5.2.1",
+    "karma-chrome-launcher": "^0.1.7",
+    "karma-coverage": "^0.3.1",
+    "karma-jasmine": "^0.3.5",
+    "karma-jspm": "^1.1.5",
+    "object.assign": "^1.0.3",
+    "require-dir": "^0.1.0",
+    "run-sequence": "^1.0.2",
+    "vinyl-paths": "^1.0.0",
+    "yargs": "^2.1.1",
+    "extend": "^2.0.0"
+  }
+}

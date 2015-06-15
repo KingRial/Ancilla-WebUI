@@ -1,0 +1,12 @@
+<template>
+  <div class="runtime">
+    <div class="viewport">
+      <div class="viewport-content">
+			     <router-view></router-view>
+      </div>
+    </div>
+    <!-- Menu -->
+    <require from='./navigation-menu'></require>
+    <navigation-menu router.bind="oRouter" item.bind="oItem"></navigation-menu>
+  </div>
+</template>
