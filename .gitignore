@@ -41,3 +41,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+node_modules
+/Compiler/development
+/Compiler/release
+/test/e2e/dist
+/Compiler/source/libs/External/

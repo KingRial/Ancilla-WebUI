@@ -20,8 +20,8 @@ export class App extends CoreViewModel{
 		config.addPipelineStep( 'authorize', AuthorizeStep );
 		config.map([
 				{ route: [ '', 'runtime' ], moduleId: './SubApps/runtime/App',	nav: true,	title: Ancilla.getConstant( '_LANG_RUNTIME' ), classCSS: 'mdi-action-home' },
-				{ route: 'administration', moduleId: './SubApps/administration/App',	nav: true,	title: Ancilla.getConstant( '_LANG_ADMINISTRATION' ), classCSS: 'mdi-action-settings' },
-				{ route: 'developer', moduleId: './SubApps/developer/App',	nav: true,	title: Ancilla.getConstant( '_LANG_DEVELOPER' ), classCSS: 'mdi-device-developer-mode' },
+				//{ route: 'administration', moduleId: './SubApps/administration/App',	nav: true,	title: Ancilla.getConstant( '_LANG_ADMINISTRATION' ), classCSS: 'mdi-action-settings' },
+				//{ route: 'developer', moduleId: './SubApps/developer/App',	nav: true,	title: Ancilla.getConstant( '_LANG_DEVELOPER' ), classCSS: 'mdi-device-developer-mode' },
 				{ route: [ 'logout', 'login' ], moduleId: './login',	nav: true,	title: Ancilla.getConstant( '_LANG_LOGOUT' ), classCSS: 'mdi-social-person' }
 		])
     this.__oRouter = router;
