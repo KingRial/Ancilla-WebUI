@@ -1,21 +1,21 @@
 {
-  "name": "Compiler",
+  "name": "Ancilla-WebUI",
   "version": "0.0.1",
-  "description": "A starter kit for compile web Apps.",
+  "description": "Ancilla project - Free home automation - WebUI",
   "keywords": [
     "ikon",
     "compiler"
   ],
-  "homepage": "http://",
+  "homepage": "https://github.com/KingRial/Ancilla-WebUI",
   "bugs": {
-    "url": "http://"
+    "url": "https://github.com/KingRial/Ancilla-WebUI/issues"
   },
   "license": "MIT",
-  "author": "Riccardo Re <kingrichard1980@gmail.com> (http://)",
+  "author": "Riccardo Re <kingrichard1980@gmail.com>",
   "main": "",
   "repository": {
     "type": "git",
-    "url": "http://"
+    "url": "https://github.com/KingRial/Ancilla-WebUI"
   },
   "dependencies": {
     "browser-sync": "^1.8.1",
