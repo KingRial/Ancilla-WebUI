@@ -45,5 +45,4 @@ node_modules
 /Compiler/development
 /Compiler/release
 /test/e2e/dist
-/Compiler/source/libs/External/
-node_modules/browser-sync/bin/browser-sync
+Compiler/source/libs/External/jspm_packages
