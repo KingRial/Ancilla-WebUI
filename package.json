@@ -1,7 +1,7 @@
 {
-  "name": "Ancilla-WebUI",
-  "version": "0.0.1",
-  "description": "Ancilla project - Free home automation - WebUI",
+  "name": "Ancilla-WebUI Compiler",
+  "version": "0.0.3",
+  "description": "Ancilla project - Free home automation supervisor - WebUI",
   "keywords": [
     "ikon",
     "compiler"
