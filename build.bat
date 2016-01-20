@@ -1,1 +1,0 @@
-C:\Windows\System32\cmd.exe /K gulp watch -b Ancilla -p Ancilla

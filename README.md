@@ -12,8 +12,7 @@ Built using the framework [Aurelia](http://aurelia.io/) the purpose is to create
 
 Changelog
 ----------------------------
-#v0.0.3
-- Added to GiTHub
+![Technology Concept](CHANGELOG.md)
 
 Project documentation
 ----------------------------

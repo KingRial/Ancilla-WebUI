@@ -1,0 +1,28 @@
+<template>
+	<!-- CSS -->
+	<!--<require from="bootstrap/css/bootstrap.css"></require>-->
+	<!-- Navigation -->
+	<nav>
+    <div class="nav-wrapper">
+      <ul class="right" >
+				<li repeat.for="oItem of oRouter.navigation" class="${oItem.isActive ? 'active' : ''}" >
+					<a href.bind="oItem.href">
+						<i class="material-icons" title="${oItem.title}">${oItem.config.icon}</i>
+					</a>
+				</li>
+				<li>
+					<a>
+						<i title="${getConstant('_LANG_MENU')}" class="navigation-menu mdi-action-view-list" data-activates="navigation-menu"></i>
+					</a>
+				</li>
+      </ul>
+    </div>
+  </nav>
+	<!-- Viewport -->
+	<div class="viewport with-header">
+		<!-- Router Content -->
+		<div class="viewport-content">
+			<router-view></router-view>
+		</div>
+	</div>
+</template>
