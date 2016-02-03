@@ -1,4 +1,5 @@
 const Language = {
+  _LANG_ANCILLA: 'Ancilla',
   _LANG_USERNAME: 'Username',
   _LANG_PASSWORD: 'Password',
   _LANG_LOGIN: 'Login',

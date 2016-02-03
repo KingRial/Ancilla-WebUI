@@ -1,4 +1,5 @@
 import { default as Constant } from 'ancilla:Constants';
+import { default as Tools } from 'ancilla:Tools';
 
 /**
  * A class to describe an Ancilla Event
@@ -46,7 +47,9 @@ export class Event{
   __fillByOptions( oArray ){
   	if( oArray ){
   		for( var _sField in oArray ){
-  			this[ _sField ] = oArray[ _sField ];
+        if( oArray.hasOwnProperty( _sField ) ){
+  			     this[ _sField ] = oArray[ _sField ];
+        }
   		}
   	}
   }

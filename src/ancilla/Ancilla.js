@@ -1,5 +1,6 @@
 import {CoreLibrary} from 'ancilla:Core.lib';
 import { default as Constant } from 'ancilla:Constants';
+import { default as Tools} from 'ancilla:Tools';
 import {Websocket} from 'ancilla:Websocket';
 import {WidgetCore} from 'ancilla:Widget.core';
 import {ObjectUser} from 'ancilla:Object.user';
@@ -51,27 +52,6 @@ class AncillaClass extends CoreLibrary {
 		};
 	}
 
-	bootstrapAurelia(){
-		this.debug( 'Bootstrapping Aurelia...' );
-//TODO: IE compatibility
-/*
-<script src="./libs/External/Aurelia/github/webreflection/es6-collections@master/es6-collections.js"></script>
-<script src="./libs/External/Aurelia/github/polymer/mutationobservers@0.4.2/MutationObserver.js"></script>
-*/
-/*
-		// TODO: now its's overwriting original paths it should extend them!!!
-		System.config({
-		  'paths': {
-		    '*': 'Apps/Ancilla/*.js'
-		    //"github:*": "libs/External/Aurelia/github/*.js",
-		    //"npm:*": "libs/External/Aurelia/npm/*.js"
-		  }
-		});
-*/
-		// Bootstrapping Aurelia
-		System.import('aurelia-bootstrapper');
-	}
-
 	getOptions( sField ){
 		return ( sField ? this.__oOptions[ sField ] : this.__oOptions );
 	}
@@ -88,12 +68,12 @@ class AncillaClass extends CoreLibrary {
 		var _sProtocol = null;
 		switch( sType ){
 			case 'websocket':
-				_sProtocol = ( Tools.getProtocol( sURL ) == 'http' ? 'ws' : 'wss' );
+				_sProtocol = ( Tools.getProtocol( sURL ) === 'http' ? 'ws' : 'wss' );
 			break;
 			case 'web':
-			default:
+			//default:
 				_sProtocol = Tools.getProtocol( sURL );
-				break;
+			break;
 		}
 		return _sProtocol;
 	}
@@ -107,12 +87,12 @@ class AncillaClass extends CoreLibrary {
 		var _sProtocol = this.getProtocol( sType, sURL );
 		switch( sType ){
 			case 'websocket':
-				_sPort = ( _sProtocol == 'ws' ? Constant._PORT_WS : Constant._PORT_WSS );
+				_sPort = ( _sProtocol === 'ws' ? Constant._PORT_WS : Constant._PORT_WSS );
 			break;
 			case 'web':
-			default:
-				_sPort = ( _sProtocol == 'http' ? Constant._PORT_HTTP : Constant._PORT_HTTPS );
-				break;
+			//default:
+				_sPort = ( _sProtocol === 'http' ? Constant._PORT_HTTP : Constant._PORT_HTTPS );
+			break;
 		}
 		return _sPort;
 	}
@@ -147,6 +127,7 @@ class AncillaClass extends CoreLibrary {
 		this.__oCurrentUser = ( oUser ? new ObjectUser( oUser ) : null ) ;
 		this.info( 'current user is set to: "%o" [%o]', ( this.__oCurrentUser ? this.__oCurrentUser.name : 'none' ), this.__oCurrentUser );
 	}
+
 	getCurrentUser(){
 		return this.__oCurrentUser;
 	}
@@ -161,26 +142,28 @@ class AncillaClass extends CoreLibrary {
 	 * @return	{String}	returns a web unique ID ( UID )
 	 *
 	 * @example
-	 *   Ancilla.getUID();
+	 *   Ancilla.getUUID();
 	 */
-	getUID(){
-		if( !this._sUID ){
+	getUUID(){
+		if( !this._sUUID ){
 //TODO: handle localstorage with a custom lib
 //TODO: handle mobile UID
-			var _sUID = ( localStorage ? localStorage.getItem( 'UID' ) : null );
-			if( !_sUID ){
-				var _sDate = ( new Date() ).valueOf().toString();
-				var _sRandom = Math.random().toString();
+			var _sUUID = ( localStorage ? localStorage.getItem( 'UID' ) : null );
+			if( !_sUUID ){
+				//var _sDate = ( new Date() ).valueOf().toString();
+				//var _sRandom = Math.random().toString();
 				// Using Forge Lib to generate a random sessiond ID ( https://github.com/digitalbazaar/forge )
 				// We are not using the SESSIOND ID in the Cookies since we are planning to evade to use PHP or similar
-				_sUID = 'web-' + Forge.md.sha1.create().update( _sDate + _sRandom ).digest().toHex();
-				this.info( 'creating missing UID: "%o"', _sUID );
-				localStorage.setItem( 'UID', _sUID );
+				//_sUUID = 'web-' + Forge.md.sha1.create().update( _sDate + _sRandom ).digest().toHex();
+//TODO: create UUID
+				_sUUID = 'fake-UUID';
+				this.info( 'creating missing UID: "%o"', _sUUID );
+				localStorage.setItem( 'UID', _sUUID );
 			}
-			this._sUID = _sUID;
+			this._sUUID = _sUUID;
 		}
-		this.info( 'using UID: "%o"', this._sUID );
-		return this._sUID;
+		this.info( 'using UID: "%o"', this._sUUID );
+		return this._sUUID;
 	}
 
 	__onStatusChange( sStatus, value ){
@@ -295,6 +278,7 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.loadObj( 'GROUP' );
 	 */
+/*
 	loadObj( toLoad ){
 		toLoad = ( Array.isArray( toLoad ) ? toLoad : [ toLoad ] );
 		var _bLoadByID = ( isNaN( toLoad[ 0 ] ) ? false : true );
@@ -307,7 +291,7 @@ class AncillaClass extends CoreLibrary {
 			this.error('unable to understand how to load objects; please check the parameters.');
 		}
 	}
-
+*/
 	/**
 	 * Method used load an object into the library
 	 *
@@ -321,12 +305,13 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.__loadObjByID( 1 );
 	 */
+/*
 	__loadObjByID( ids ){
 		var _oLoadPromise = null;
 		var _Ancilla = this;
-		ids = ( Array.isArray( ids ) ? ids : [ ids ] )
+		ids = ( Array.isArray( ids ) ? ids : [ ids ] );
 		var _aObjectIDsToSearch = this.__objIDsNotLoaded( ids );
-		if( _aObjectIDsToSearch.length == 0 ){
+		if( _aObjectIDsToSearch.length === 0 ){
 			this.debug( '[__loadObjByID] nothing to load' );
 			_oLoadPromise = Promise.resolve();
 		} else {
@@ -350,11 +335,11 @@ class AncillaClass extends CoreLibrary {
 						fReject( oError );
 					})
 				;
-			} )
+			} );
 		}
 		return _oLoadPromise;
 	}
-
+*/
 	/**
 	 * Method used load an object into the library
 	 *
@@ -368,12 +353,13 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.__loadObjByType( 'GROUP' );
 	 */
+	 /*
 	__loadObjByType( types ){
 			var _oLoadPromise = null;
 			var _Ancilla = this;
-			types = ( Array.isArray( types ) ? types : [ types ] )
+			types = ( Array.isArray( types ) ? types : [ types ] );
 			var _aObjectTypesToSearch = this.__objTypesNotLoaded( types );
-			if( _aObjectTypesToSearch.length == 0 ){
+			if( _aObjectTypesToSearch.length === 0 ){
 				this.debug( '[__loadObjByType] nothing to load' );
 				// Returning promise with array of already loaded IDs
 				var _aIDsByType = [];
@@ -408,7 +394,7 @@ class AncillaClass extends CoreLibrary {
 			}
 			return _oLoadPromise;
 	}
-
+*/
 	/**
 	 * Method used remember what objects have their surrounding already loaded
 	 *
@@ -424,6 +410,7 @@ class AncillaClass extends CoreLibrary {
 	 *   Ancilla.__setLoadedSurrouding( 'GROUP' );
 	 *   Ancilla.__setLoadedSurrouding( [ 'GROUP', 'TECHNOLOGY' ] );
 	 */
+/*
 	__setLoadedSurrouding( toRemember, aIDs ){
 		toRemember = ( Array.isArray( toRemember ) ? toRemember : [ toRemember ] );
 		var _bRememberByID = ( isNaN( toRemember[ 0 ] ) ? false : true );
@@ -436,7 +423,7 @@ class AncillaClass extends CoreLibrary {
 			this.error('unable to understand how to remember objects; please check the parameters.');
 		}
 	}
-
+*/
  /**
 	* Method used to remeber what objects have their surrounding already loaded by their IDs
 	*
@@ -448,6 +435,7 @@ class AncillaClass extends CoreLibrary {
 	* @example
 	*   Ancilla.__setLoadedSurroundingByID( 1 );
 	*/
+	/*
 	__setLoadedSurroundingByID( aIDs ){
 		this.debug('loaded object\'s surroundings by IDs: "%o"', aIDs);
 		for( var _iIndex in aIDs ){
@@ -459,6 +447,7 @@ class AncillaClass extends CoreLibrary {
 			}
 		}
 	}
+	*/
  /**
 	* Method used to remeber what objects have their surrounding already loaded by their types
 	*
@@ -471,6 +460,7 @@ class AncillaClass extends CoreLibrary {
 	* @example
 	*   Ancilla.__setLoadedSurroundingByType( 'GROUP' );
 	*/
+/*
 	__setLoadedSurroundingByType( aTypes, aIDs ){
 		this.debug('loaded object\'s surroundings by types: "%o"', aTypes);
 		for( var _iIndex in aTypes ){
@@ -488,7 +478,7 @@ class AncillaClass extends CoreLibrary {
 			}
 		}
 	}
-
+*/
 	/**
 	* Method used to check if an object is loaded completly
 	*
@@ -502,6 +492,7 @@ class AncillaClass extends CoreLibrary {
 	* @example
 	*   Ancilla.__objIDsNotLoaded( [ 1, 2, 3 ] );
 	*/
+/*
 	__objIDsNotLoaded( aIDs ){
 		var _aObjectIDsToSearch = [];
 		for( var _iIndex in aIDs ){
@@ -513,7 +504,7 @@ class AncillaClass extends CoreLibrary {
 		}
 		return _aObjectIDsToSearch;
 	}
-
+*/
 	/**
 	* Method used to check if an object's type is loaded completly
 	*
@@ -527,6 +518,7 @@ class AncillaClass extends CoreLibrary {
 	* @example
 	*   Ancilla.__objTypesNotLoaded( [ 'GROUP', 'TECHNOLOGY' ] );
 	*/
+/*
 	__objTypesNotLoaded( aTypes ){
 		var _aObjectTypesToSearch = [];
 		for( var _iIndex in aTypes ){
@@ -537,7 +529,7 @@ class AncillaClass extends CoreLibrary {
 		}
 		return _aObjectTypesToSearch;
 	}
-
+*/
 	/**
 	 * Method used cache object's surroundings
 	 *
@@ -551,6 +543,7 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.__cacheSurroundings( { surrounding } );
 	 */
+/*
 	__cacheSurroundings( oSurrounding ){
 		var _Ancilla = this;
 		return new Promise( function( fResolve, fReject ){
@@ -672,7 +665,7 @@ class AncillaClass extends CoreLibrary {
 			}
 		});
 	}
-
+*/
 	/**
 	 * Method used cache objects
 	 *
@@ -686,6 +679,7 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.__cacheObjects( oObject );
 	 */
+/*
 	__cacheObjects( obj ){
 		var _aLoadedObjs = ( Array.isArray( obj ) ? obj : [ obj ] ) ;
 		for( var _iIndex in _aLoadedObjs ){
@@ -699,6 +693,7 @@ class AncillaClass extends CoreLibrary {
 			}
 		}
 	}
+*/
 	/**
 	 * Method used cache relations
 	 *
@@ -712,6 +707,7 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.__cacheRelations( oRelation );
 	 */
+/*
 	__cacheRelations( relation ){
 		var _aLoadedRelations = ( Array.isArray( relation ) ? relation : [ relation ] ) ;
 		for( var _iIndex in _aLoadedRelations ){
@@ -738,6 +734,7 @@ class AncillaClass extends CoreLibrary {
 			}
 		}
 	}
+*/
 	/**
 	 * Method used cache wdiget
 	 *
@@ -751,6 +748,7 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.__cacheWidgets( oWidget );
 	 */
+/*
 	__cacheWidgets( widget ){
 		var _aLoadedWidgets = ( Array.isArray( widget ) ? widget : [ widget ] ) ;
 		for( var _iIndex in _aLoadedWidgets ){
@@ -764,6 +762,7 @@ class AncillaClass extends CoreLibrary {
 			}
 		}
 	}
+*/
 	/**
 	 * Method used get an object from the library
 	 *
@@ -810,12 +809,14 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.getObjsByParent( 1 );
 	 */
+/*
 	getObjsByParent( iID ){
 		if( typeof this.__oMemoryCache.oObjsByParents[ iID ] == 'undefined' ){
 			this.__oMemoryCache.oObjsByParents[ iID ] = new Array();
 		}
 		return this.__oMemoryCache.oObjsByParents[ iID ];
 	}
+*/
 	/**
 	 * Method used get objects from the library by their child ID
 	 *
@@ -829,12 +830,14 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.getObjsByChild( 1 );
 	 */
+/*
 	getObjsByChild( iID ){
 		if( typeof this.__oMemoryCache.oObjsByChildren[ iID ] == 'undefined' ){
 			this.__oMemoryCache.oObjsByChildren[ iID ] = new Array();
 		}
 		return this.__oMemoryCache.oObjsByChildren[ iID ];
 	}
+*/
 	/**
 	 * Method used get a widget from the library
 	 *
@@ -866,7 +869,7 @@ class AncillaClass extends CoreLibrary {
 	start(){
 		this.info('Starting...');
 		// Init WebSocket
-		var _oOptions = this.getOptions();
+		//var _oOptions = this.getOptions();
 		var _sWsURL = this.getServerAddress( 'websocket' );
 		var _Ancilla = this;
 		return this.__initWebSocket( _sWsURL )
@@ -877,6 +880,7 @@ class AncillaClass extends CoreLibrary {
 	}
 }
 
+/*
 //Polyfills - Object.assign
 if( !Object.assign ){
 	Object.defineProperty(Object, 'assign', {
@@ -909,6 +913,7 @@ if( !Object.assign ){
 		}
 	});
 }
+*/
 
 // Exporting Singleton
 const Ancilla = new AncillaClass();

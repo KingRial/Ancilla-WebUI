@@ -1,5 +1,5 @@
 import {CoreLibrary} from 'ancilla:Core.lib';
-import { default as Constant } from 'ancilla:Constants';
+//import { default as Constant } from 'ancilla:Constants';
 import {Event} from 'ancilla:Event';
 
 /**
@@ -104,7 +104,7 @@ export class Websocket extends CoreLibrary{
 		this._oWs.onmessage = function( oMessage ) {
 			_Websocket.debug( 'received data: %o', oMessage );
 			var _oAncillaEvent = new Event( JSON.parse( oMessage.data ) );
-			if( _oAncillaEvent.getTo() == _Websocket.getSessionID() ){
+			if( _oAncillaEvent.getTo() === _Websocket.getSessionID() ){
 				_Websocket.debug( 'received %s "%o" ( %o ID: %o )...', ( _oAncillaEvent.isAnswer() ? 'answer' : 'event' ), _oAncillaEvent.getType(), _oAncillaEvent, _oAncillaEvent.getID()  );
 				_Websocket.__clearDeferredAncillaRequest( _oAncillaEvent, true );
 			} else {
@@ -165,7 +165,7 @@ export class Websocket extends CoreLibrary{
 		var _oAncillaEvent = new Event( oEventOptions );
 		this.debug( 'Sending to "%s" Ancilla Event: "%o" ( %o ID: %o )', _oAncillaEvent.getTo(), _oAncillaEvent.getType(), _oAncillaEvent, _oAncillaEvent.getID() );
 		if( _oAncillaEvent.needsAnswer() ){
-			var _oPromiseWait4Answer = new Promise( function( fResolve, fReject ){
+			var _oPromiseWait4Answer = new Promise( function( fResolve ){
 					// Storing Resolve function waiting for answer
 					_Websocket.__addDeferredAncillaRequest( _oAncillaEvent, fResolve );
 				} )

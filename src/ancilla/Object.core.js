@@ -1,4 +1,5 @@
 import { default as Constant } from 'ancilla:Constants';
+import { default as Ancilla } from 'ancilla:Ancilla';
 
 /**
  * A class to describe a generic Ancilla object
@@ -38,21 +39,23 @@ export class ObjectCore{
   __fillByOptions( oArray ){
   	if( oArray ){
   		for( var _sField in oArray ){
-        var _sCurrentField = _sField.toLowerCase();
-        switch( _sCurrentField ){
-          case 'name':
-          this[ _sCurrentField ] = Ancilla.getConstant( oArray[ _sField ] );
-          break;
-          case 'options':
-            try{
-              this[ _sCurrentField ] = JSON.parse( oArray[ _sField ] );
-            } catch( e ){
-              this.error( '[ Error: %o ] Unable to parse correctly "option" field during object initialization', e );
-            }
+        if( oArray.hasOwnProperty( _sField ) ){
+          var _sCurrentField = _sField.toLowerCase();
+          switch( _sCurrentField ){
+            case 'name':
+            this[ _sCurrentField ] = Ancilla.getConstant( oArray[ _sField ] );
             break;
-          default:
-            this[ _sCurrentField ] = oArray[ _sField ];
-            break;
+            case 'options':
+              try{
+                this[ _sCurrentField ] = JSON.parse( oArray[ _sField ] );
+              } catch( e ){
+                this.error( '[ Error: %o ] Unable to parse correctly "option" field during object initialization', e );
+              }
+              break;
+            default:
+              this[ _sCurrentField ] = oArray[ _sField ];
+              break;
+          }
         }
   		}
   	}
@@ -120,10 +123,12 @@ export class ObjectCore{
     // Remembering previous value for each field
     var _oFieldsWithOldValues = {};
     for( var _sField in oFieldsWithNewValues ){
-      var newValue = oFieldsWithNewValues[ _sField ];
-      _oFieldsWithOldValues[ _sField ] = this[ _sField ];
-      // Updating field over object
-      this[ _sField ] = newValue;
+      if( oFieldsWithNewValues.hasOwnProperty( _sField ) ){
+        var newValue = oFieldsWithNewValues[ _sField ];
+        _oFieldsWithOldValues[ _sField ] = this[ _sField ];
+        // Updating field over object
+        this[ _sField ] = newValue;
+      }
     }
     // Adding Object's ID ( overwriting previous one if present; the ID must not change )
     oFieldsWithNewValues.id = this.getID();
@@ -134,8 +139,10 @@ export class ObjectCore{
         _Object.error('[ Error: %o] Unable to set values: %o; restoring previous values: %o...', oError, oFieldsWithNewValues, _oFieldsWithOldValues );
         // Restoring previous values
         for( var _sField in _oFieldsWithOldValues ){
-          var oldValue = _oFieldsWithOldValues[ _sField ];
-          this[ _sField ] = oldValue;
+          if( _oFieldsWithOldValues.hasOwnProperty( _sField ) ){
+            var oldValue = _oFieldsWithOldValues[ _sField ];
+            this[ _sField ] = oldValue;
+          }
         }
       });
   }

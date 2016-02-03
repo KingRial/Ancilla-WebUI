@@ -1,0 +1,27 @@
+<template>
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <div class="center-block">
+        <h2>${getConstant('_LANG_LOGIN')}</h2>
+        <!-- Username -->
+        <div class="input-group margin-bottom-sm input-group-lg">
+          <span class="input-group-addon"><i class="fa fa-user fa-fw "></i></span>
+          <input class="form-control" type="text" placeholder="${getConstant('_LANG_USERNAME')}">
+        </div>
+        <!-- Password -->
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
+          <input class="form-control" type="password" placeholder="${getConstant('_LANG_PASSWORD')}">
+        </div>
+        <!-- Remeber Me -->
+        <div class="checkbox">
+          <label><input type="checkbox" value="remember-me">${getConstant('_LANG_REMEMBERME')}</label>
+        </div>
+        <!-- Login button -->
+        <button type="button" class="center-block btn btn-lg btn-primary btn-block"  click.delegate="login()" >${getConstant('_LANG_LOGIN')}</button>
+      </div>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</template>

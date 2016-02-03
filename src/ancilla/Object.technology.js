@@ -16,6 +16,7 @@ import {ObjectCore} from 'ancilla:Object.Core';
 export class ObjectTechnology extends ObjectCore {
   getEndpoints(){
     var _aObjectEndpoints = [];
+    /*
     if( this.options && this.options.aArguments ){
       var _aGateways = this.options.aArguments;
       for(var _iIndexGateway in _aGateways ){
@@ -26,13 +27,14 @@ export class ObjectTechnology extends ObjectCore {
         }
       }
     }
+    */
     return _aObjectEndpoints;
   }
 
   getListenerEndpoints(){
     var _aObjectListeners = [];
     var _aObjectEndpoints = this.getEndpoints();
-    for(var _iIndex in _aObjectEndpoints ){
+    for(var _iIndex=0; _iIndex < _aObjectEndpoints.length; _iIndex++ ){
       var _oEndpoint = _aObjectEndpoints[ _iIndex ];
       if( _oEndpoint.isListener() ){
         _aObjectListeners.push( _oEndpoint );
@@ -44,7 +46,7 @@ export class ObjectTechnology extends ObjectCore {
   getConnectEndpoints(){
     var _aObjectConnects = [];
     var _aObjectEndpoints = this.getEndpoints();
-    for(var _iIndex in _aObjectEndpoints ){
+    for(var _iIndex=0; _iIndex < _aObjectEndpoints.length; _iIndex++ ){
       var _oEndpoint = _aObjectEndpoints[ _iIndex ];
       if( !_oEndpoint.isListener() ){
         _aObjectConnects.push( _oEndpoint );
@@ -86,15 +88,15 @@ export class ObjectTechnology extends ObjectCore {
    }
 
    isListener(){
-     return ( this.type=='listen' );
+     return ( this.type==='listen' );
    }
 
    isConnectedTo( oEndpoint ){
      return (
-      this.getType() != oEndpoint.getType() &&
-      this.getConnectionType() == oEndpoint.getConnectionType() &&
-      this.getHost() == oEndpoint.getHost() &&
-      this.getPort() == oEndpoint.getPort()
+      this.getType() !== oEndpoint.getType() &&
+      this.getConnectionType() === oEndpoint.getConnectionType() &&
+      this.getHost() === oEndpoint.getHost() &&
+      this.getPort() === oEndpoint.getPort()
     );
    }
  }

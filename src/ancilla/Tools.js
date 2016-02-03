@@ -11,7 +11,7 @@ import {CoreLibrary} from 'ancilla:Core.lib';
  * @example
  *		new Tools();
  */
-export class Tools extends CoreLibrary {
+export class ToolsClass extends CoreLibrary {
 
   constructor(){
 		// Calling Super Constructor
@@ -37,7 +37,7 @@ export class Tools extends CoreLibrary {
 			sURL = sURL.replace( new RegExp( _sProtocol + '://' ), '' );
 		}
 		var _aIPAddressTokens = sURL.replace(new RegExp(/\\\\/g),'/').split('/');
-		return ( _aIPAddressTokens[0].indexOf('@')!=-1 ? _aIPAddressTokens[0].split('@')[1].split(':')[0] : _aIPAddressTokens[0].split(':')[0] );
+		return ( _aIPAddressTokens[0].indexOf('@')!==-1 ? _aIPAddressTokens[0].split('@')[1].split(':')[0] : _aIPAddressTokens[0].split(':')[0] );
 	}
 
 	getSWName( sURL ){
@@ -61,7 +61,7 @@ export class Tools extends CoreLibrary {
 			sURL = sURL.replace(new RegExp(_sProtocol + '://'),'');
 		}
 		var _aIPAddressTokens = sURL.replace(new RegExp(/\\\\/g),'/').split('/');
-		return ( _aIPAddressTokens[0].indexOf('@')!=-1 ? _aIPAddressTokens[0].split('@')[0] + '@' : '' );
+		return ( _aIPAddressTokens[0].indexOf('@')!==-1 ? _aIPAddressTokens[0].split('@')[0] + '@' : '' );
 	}
 
 	getPort( sURL ){
@@ -87,10 +87,10 @@ export class Tools extends CoreLibrary {
 		_aStack.pop(); // remove current file name (or empty string)
 		// (omit if "sBaseURL" is the current folder without trailing slash)
 		for( var _iIndex=0; _iIndex<_aParts.length; _iIndex++ ){
-			if ( _aParts[ _iIndex ] == '.'){
+			if ( _aParts[ _iIndex ] === '.'){
 				continue;
 			}
-			if ( _aParts[ _iIndex ] == '..'){
+			if ( _aParts[ _iIndex ] === '..'){
 				_aStack.pop();
 			} else {
 			_aStack.push( _aParts[ _iIndex ] );
@@ -102,7 +102,7 @@ export class Tools extends CoreLibrary {
   CIDRCheckOnIP( sIP, sCIDR ){
 		var _aCIDR = sCIDR.split('/');
 		var _aIP = sIP.split('.');
-		var _sBase = _aCIDR[0];
+		//var _sBase = _aCIDR[0];
 		var _aBase = _aCIDR[0].split('.');
 		var _iBits = parseInt(_aCIDR[1]);
 		var _iA = parseInt(_aBase[0]);
@@ -110,7 +110,7 @@ export class Tools extends CoreLibrary {
 		var _iC = parseInt(_aBase[2]);
 		var _iD = parseInt(_aBase[3]);
 		var _biTmp = (_iA << 24)+(_iB << 16) + (_iC << 8) + _iD;
-		var _biMask = (_iBits == 0?0:(~0 << (32 - _iBits)));
+		var _biMask = (_iBits === 0?0:(~0 << (32 - _iBits)));
 		var _biLow = _biTmp & _biMask;
 		var _biHigh = _biTmp | (~_biMask & 0xFFFFFFFF);
 		_iA = parseInt(_aIP[0]);
@@ -122,16 +122,15 @@ export class Tools extends CoreLibrary {
 	}
 
 	IPisPublic( sIP ){
+    // Checking standard local networks (http://en.wikipedia.org/wiki/Private_network)
 		var _bIsPublic = (
-			// Checking standard local networks (http://en.wikipedia.org/wiki/Private_network)
 				(
-					( sIP=='locahost' ) ||
-					( sIP=='127.0.0.1' ) ||
+					( sIP==='locahost' ) ||
+					( sIP==='127.0.0.1' ) ||
 					this.CIDRCheckOnIP( sIP, '10.0.0.0/8' ) ||
 					this.CIDRCheckOnIP( sIP, '172.16.0.0/12' ) ||
 					this.CIDRCheckOnIP( sIP, '192.168.0.0/16' )
-				)
-			? false : true );
+				) ? false : true );
 		return _bIsPublic;
 	}
 
@@ -140,7 +139,6 @@ export class Tools extends CoreLibrary {
 	}
 
   getBrowserVersion(userAgent){
-		var _sResult = '';
 		if( !userAgent ){
 			userAgent = this.getUserAgent();
 		}
@@ -208,7 +206,7 @@ export class Tools extends CoreLibrary {
 	}
 
 	isMobileBrowser(userAgent){
-		bResult = ( this.isAppleMobileBrowser(userAgent) || this.isAndroidMobileBrowser(userAgent) );
+		var bResult = ( this.isAppleMobileBrowser(userAgent) || this.isAndroidMobileBrowser(userAgent) );
 		return bResult;
 	}
 
@@ -233,6 +231,8 @@ export class Tools extends CoreLibrary {
 				_iScale = 1000;
 			break;
 			case 'milliseconds':
+        _iScale = 1;
+      break;
 			default:
 				_iScale = 1;
 			break;
@@ -248,11 +248,12 @@ export class Tools extends CoreLibrary {
     }
   }
 
+  /*
   import( aLibsToImport ){
     var _Tools = this;
-    var _aImportPromises = new Array();
+    var _aImportPromises = [];
     _Tools.debug( 'loading libraries: %o', aLibsToImport );
-    for( var _iIndex in aLibsToImport ){
+    for( var _iIndex=0; _iIndex<aLibsToImport.length; _iIndex++ ){
         var _oPromiseToLoad = System.import( aLibsToImport[ _iIndex ] );
         _oPromiseToLoad
           .catch( function( oError ){
@@ -263,6 +264,7 @@ export class Tools extends CoreLibrary {
     }
     return Promise.all( _aImportPromises );
   }
+  */
 
   /*
   hex2RGB( sHex ){
@@ -437,3 +439,7 @@ export class Tools extends CoreLibrary {
 	}
 */
 }
+
+// Exporting Singleton
+const Tools = new ToolsClass();
+export default Tools;

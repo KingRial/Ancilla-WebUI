@@ -1,3 +1,5 @@
+import { default as Ancilla } from 'ancilla:Ancilla';
+
 /**
  * A class to describe a generic Ancilla widget
  *
@@ -33,25 +35,27 @@ export class WidgetCore{
   __fillByOptions( oArray ){
   	if( oArray ){
   		for( var _sKey in oArray ){
-        var _sField = _sKey.toLowerCase();
-        var value = oArray[ _sKey ];
-        // Parsing JSON strings
-        switch( _sField ){
-          case 'options':
-            if( value ){
-              try{
-                value = JSON.parse( value )
-              } catch(e) {
-                this.error('Unable to parse widget\'s options JSON string: "%o"', value )
+        if( oArray.hasOwnProperty( _sKey ) ){
+          var _sField = _sKey.toLowerCase();
+          var value = oArray[ _sKey ];
+          // Parsing JSON strings
+          switch( _sField ){
+            case 'options':
+              if( value ){
+                try{
+                  value = JSON.parse( value );
+                } catch(e) {
+                  this.error('Unable to parse widget\'s options JSON string: "%o"', value );
+                }
               }
-            }
-          break;
-          default:
-            // Nothing to do
-          break;
+            break;
+            default:
+              // Nothing to do
+            break;
+          }
+          // Setting parameter's value
+          this[ _sField ] = value;
         }
-        // Setting parameter's value
-        this[ _sField ] = value;
   		}
   	}
   }
@@ -68,7 +72,7 @@ export class WidgetCore{
    *   Widget.hasOptions();
    */
   hasOptions(){
-    return ( typeof this.options == 'undefined' ? false : true );
+    return ( typeof this.options === 'undefined' ? false : true );
   }
 
   /**
@@ -126,7 +130,7 @@ export class WidgetCore{
       for( var _iIndex = _iMinIndex; _iIndex <= _iMaxIndex; _iIndex++ ){
       if( this.options[ _iIndex ] ){
         var _fCurrentOptionValue = this.options[ _iIndex ].value;
-        if( value==_fCurrentOptionValue ){ // Exact value
+        if( value===_fCurrentOptionValue ){ // Exact value
           _iOptionIndex = _iIndex;
           break;
         } else if( _iMinIndex < _iIndex && _iIndex < _iMaxIndex ){ // Finding the nearest value, excluding first and last options ( which should be the min and max value... )
@@ -141,7 +145,7 @@ export class WidgetCore{
         }
       }
     }
-    if( _iOptionIndex == -1 ){
+    if( _iOptionIndex === -1 ){
       _iOptionIndex = 0;
       this.error('Unable to find option\'s index for value: %o; assuming index 0.', value);
     }
