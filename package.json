@@ -28,7 +28,7 @@
       "aurelia-animator-css": "npm:aurelia-animator-css@^1.0.0-beta.1",
       "aurelia-bootstrapper": "npm:aurelia-bootstrapper@^1.0.0-beta.1",
       "aurelia-breeze": "npm:aurelia-breeze@^1.0.0",
-      "aurelia-fetch-client": "npm:aurelia-fetch-client@^1.0.0-beta.1",
+      "aurelia-fetch-client": "npm:aurelia-fetch-client@^1.0.0-beta.1.1.0",
       "aurelia-framework": "npm:aurelia-framework@^1.0.0-beta.1",
       "aurelia-history-browser": "npm:aurelia-history-browser@^1.0.0-beta.1",
       "aurelia-loader-default": "npm:aurelia-loader-default@^1.0.0-beta.1.0.1",
@@ -40,8 +40,9 @@
       "bluebird": "npm:bluebird@^3.1.1",
       "bootstrap": "github:twbs/bootstrap@^3.3.5",
       "breeze": "npm:breeze-client@^1.5.5",
-      "fetch": "github:github/fetch@^0.10.1",
+      "fetch": "github:github/fetch@^0.11.0",
       "font-awesome": "npm:font-awesome@^4.4.0",
+      "localForage": "github:mozilla/localForage@^1.4.0",
       "text": "github:systemjs/plugin-text@^0.0.3"
     },
     "devDependencies": {

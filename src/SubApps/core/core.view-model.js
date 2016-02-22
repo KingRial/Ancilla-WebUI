@@ -11,6 +11,7 @@ import { default as Ancilla } from 'ancilla:Ancilla';
  */
 
 export class CoreViewModel {
+
 	/**
    * Method used by the view to get a Language constant
    *
@@ -43,6 +44,33 @@ export class CoreViewModel {
 		//var _View = this;
 		return Ancilla.loadObj( IDsOrTypes );
 	}
+
+	/*
+	onEnterPressed( oEvent ){
+		return ( oEvent && oEvent.type === 'keypress' && oEvent.charCode===13 ? true : false );
+	}
+	*/
+	/*
+	onEnterPressed( oEvent ){
+		var _iKeyCode = null;
+		if( window.event && window.event.keyCode ){ //Simulated events will have keyCode set to 0
+		    _iKeyCode = window.event.keyCode;
+		} else if( oEvent ){
+		    _iKeyCode = oEvent.which;
+		} else {
+		    return false;
+		}
+		// Checking HTML target
+		var _jTarget = $( oEvent.currentTarget );
+		var _bTargetIsValid = ( _jTarget.size()>0 );
+		// Ignoring SHIFT+Enter when using a textarea
+		var _bFoundEnter = ( _iKeyCode == 13 && ( _bTargetIsValid && ( ( !oEvent.shiftKey && _jTarget.is('textarea') ) || !_jTarget.is('textarea') ) ) );
+		// Blur Target or add char
+		if( _bTargetIsValid && _bFoundEnter ){
+		    _jTarget.blur();
+		}
+  }
+	*/
 
 	/**
 	* Method used by the view to fire an error message

@@ -1,49 +1,43 @@
 import {CoreViewModel} from './SubApps/core/core.view-model';
-//import { default as Constant } from 'ancilla:Constants';
-//import {ObjectUser} from 'ancilla:Object.User';
+
+import { default as Ancilla } from 'ancilla:Ancilla';
+import { default as Tools} from 'ancilla:Tools';
 
 export class Login extends CoreViewModel{
 
-/*
+  constructor(){
+    super();
+    this.sUsername = '';
+    this.sPassword = '';
+    this.bRememberMe = false;
+  }
+
   activate( oParams, oQueryString, oRouteConfig){
-    // TODO: do logout
-    if( oRouteConfig.route == 'logout' ){
+    if( oRouteConfig.route === 'logout' ){
       Ancilla
-        .trigger({ sType: Constant._EVENT_TYPE_LOGOUT })
-        .then( function( oEvent ){
-          if( oEvent.getResult() == Constant._NO_ERROR ){
-            Ancilla.setCurrentUser( null );
-            Tools.windowReload('#/login')
-          } else {
-            Ancilla.error( 'Error "%o"; unable to logout', oEvent.getResult() );
-          }
+        .logOut()
+        .then( function(){
+          Ancilla.setCurrentUser( null );
+          Tools.windowReload('#/login');
+        })
+        .catch( function( error ){
+// TODO: UI error
+          Ancilla.error( 'Error "%o"; unable to logout', error );
         })
       ;
     }
   }
-*/
+
   login(){
-    // TODO: do login
-    /*
-    var _oUser = new ObjectUser();
-    Ancilla
-      .trigger({
-          sType: Constant._EVENT_TYPE_LOGIN,
-          sUsername: this.sUsername,
-          sPassword: _oUser.hashPassword( this.sPassword )
+    Ancilla.logInAs( this.sUsername, this.sPassword )
+      .then(function(){
+        Ancilla.info( 'logged as "%o"', ( Ancilla.getCurrentUser() ? Ancilla.getCurrentUser().name : 'noone' ) );
+        Tools.windowReload('#/');
       })
-      .then( function( oEvent ){
-        if( oEvent.getResult() == Constant._NO_ERROR ){
-          if( oEvent.oUser ){
-            Ancilla.setCurrentUser( oEvent.oUser );
-          }
-          Ancilla.info( 'logged as "%o"', ( Ancilla.getCurrentUser() ? Ancilla.getCurrentUser().name : 'noone' ) );
-          Tools.windowReload('#/')
-        } else {
-          Ancilla.error( 'Error "%o"; unable to login', oEvent.getResult() );
-        }
+      .catch(function( error ){
+// TODO: UI error
+        Ancilla.error( '%o; unable to login.', error );
       })
     ;
-    */
   }
 }

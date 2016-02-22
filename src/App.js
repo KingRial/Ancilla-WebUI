@@ -24,16 +24,24 @@ class AuthorizeStep {
       }
     }
     */
+navigationInstruction.getAllInstructions().some( function( oElement ){
+  console.error( 'Element: %o Config: %o Auth: %o', oElement, oElement.config, ( oElement.config ? oElement.config.auth : null ) );
+} );
     var _bIsNotLoginPage  = navigationInstruction.getAllInstructions().some( element => element.config.moduleId !== './login' );
 		if( _bIsNotLoginPage ){
-			var _oUser = Ancilla.getCurrentUser();
-			Ancilla.debug( '[Login Check] %o is logged...', ( _oUser ? _oUser : 'noone' ) );
-			if( !_oUser ){
-				return next.cancel( new Redirect( 'login' ) );
-			} else{
-				return next();
-			}
-		}
-    return next();
+      return Ancilla.isAuthenticated()
+        .then( function( bIsAuthenticated ){
+          let _oUser = Ancilla.getCurrentUser();
+          Ancilla.debug( '[Login Check] %o is logged...', ( _oUser ? _oUser : 'noone' ) );
+          if( bIsAuthenticated ){
+            return next();
+    			} else {
+            return next.cancel( new Redirect( 'login' ) );
+          }
+        })
+      ;
+		} else {
+      return next();
+    }
   }
 }

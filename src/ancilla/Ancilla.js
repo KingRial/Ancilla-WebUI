@@ -1,11 +1,12 @@
 import {CoreLibrary} from 'ancilla:Core.lib';
 import { default as Constant } from 'ancilla:Constants';
 import { default as Tools} from 'ancilla:Tools';
+import { default as Authenticator} from 'ancilla:Authenticator.oAuth2';
 import {Websocket} from 'ancilla:Websocket';
 import {WidgetCore} from 'ancilla:Widget.core';
 import {ObjectUser} from 'ancilla:Object.user';
 //import { default as Forge} from 'forge';
-//import 'bluebird'; // TODO: should I use bluebird ?
+//import 'bluebird'; // TODO: should I use bluebird ? it gives warnings with aurelia
 //import breeze from 'breeze';
 //var query = new breeze.EntityQuery();
 // TODO:: dynamic languages
@@ -50,6 +51,11 @@ class AncillaClass extends CoreLibrary {
 		this.__oStatus = {
 			bIsConnected: false
 		};
+		this.__oServerRules = null;
+		//oAuth
+		this.__oAuth = new Authenticator( {
+			sBaseURL: this.getServerAddress()
+		});
 	}
 
 	getOptions( sField ){
@@ -71,7 +77,8 @@ class AncillaClass extends CoreLibrary {
 				_sProtocol = ( Tools.getProtocol( sURL ) === 'http' ? 'ws' : 'wss' );
 			break;
 			case 'web':
-			//default:
+			/* falls through */
+			default:
 				_sProtocol = Tools.getProtocol( sURL );
 			break;
 		}
@@ -83,22 +90,25 @@ class AncillaClass extends CoreLibrary {
 	}
 
 	getServerPort( sType, sURL ){
-		var _sPort = null;
-		var _sProtocol = this.getProtocol( sType, sURL );
+		let _sPort = null;
+		let _sProtocol = this.getProtocol( sType, sURL );
 		switch( sType ){
 			case 'websocket':
-				_sPort = ( _sProtocol === 'ws' ? Constant._PORT_WS : Constant._PORT_WSS );
+				_sPort = ( _sProtocol === 'ws' ? Constant._PORT_SERVER_WS : Constant._PORT_SERVER_WSS );
 			break;
 			case 'web':
-			//default:
-				_sPort = ( _sProtocol === 'http' ? Constant._PORT_HTTP : Constant._PORT_HTTPS );
+			/* falls through */
+			default:
+				_sPort = Tools.getPort( sURL );
+				//_sPort = ( _sProtocol === 'http' ? Constant._PORT_SERVER_HTTP : Constant._PORT_SERVER_HTTPS );
 			break;
 		}
 		return _sPort;
 	}
 
 	getServerAddress( sType, sURL ){
-		return this.getProtocol( sType, sURL ) + '://' + this.getServerIP( sURL ) + ':' + this.getServerPort( sType, sURL ) + '/';
+		let _sPort = this.getServerPort( sType, sURL );
+		return this.getProtocol( sType, sURL ) + '://' + this.getServerIP( sURL ) + ( _sPort ? ':' + _sPort : '' );
 	}
 
 	setServerAddress( sURL ){
@@ -130,6 +140,41 @@ class AncillaClass extends CoreLibrary {
 
 	getCurrentUser(){
 		return this.__oCurrentUser;
+	}
+
+	setServerRules( oRules ){
+		this.__oServerRules = oRules;
+	}
+
+	getServerRules(){
+		return this.__oServerRules;
+	}
+
+/*
+	getAccessToken(){
+		return this.__oAuth.getAccessToken();
+	}
+
+	getRefreshToken(){
+		return this.__oAuth.getRefreshToken();
+	}
+*/
+	isAuthenticated(){
+//TODO: http://blog.opinionatedapps.com/aureliauth-a-token-based-authentication-plugin-for-aurelia/
+/*
+		let _oUser = this.getCurrentUser();
+		let _oServerRules = this.getServerRules();
+		return ( _oUser && _oServerRules ? true : false );
+*/
+		return this.__oAuth.isAuthenticated();
+	}
+
+	logInAs( sUsername, sPassword ){
+		return this.__oAuth.logInAs( sUsername, sPassword );
+	}
+
+	logOut(){
+		return this.__oAuth.logOut();
 	}
 
 	/**
