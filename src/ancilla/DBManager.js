@@ -32,9 +32,8 @@ export default class DBManager extends CoreLibrary {
     return new breeze.EntityQuery();
   }
 
-  query( oEntitQuery ){
-    let _DBManager = this;
-    this.__oAuthenticator.getAccessToken()
+  updateAccessToken(){
+    return this.__oAuthenticator.getAccessToken()
       .then(function( sAccessToken ){
         if( sAccessToken ){
           let _oAdapter = breeze.config.getAdapterInstance( 'ajax' );
@@ -52,9 +51,27 @@ export default class DBManager extends CoreLibrary {
           };
         }
       })
+    ;
+  }
+
+  refreshAccessToken(){
+    return this.__oAuthenticator.refreshToken();
+  }
+
+  query( oEntitQuery ){
+    let _DBManager = this;
+      this.updateAccessToken()
       .then( function(){
-// TODO: beccare il body e mandarlo con una post/get dell'autenticator o gestire il fallimento con una refreh token e la reiterazione della chiamata ( inventare un metodo nell'autenticatore che riceva in ingresso una promessa ajax e la ripeta in qualche modo )
         return _DBManager.__oDB.executeQuery( oEntitQuery );
+      })
+      .catch( function(){
+console.error( 'Failed query' );
+        return _DBManager.refreshAccessToken()
+          .then( function(){
+            console.error( 'Ripeti QUERY ora che è tutto refreshato' );
+            return _DBManager.__oDB.executeQuery( oEntitQuery );
+          })
+        ;
       })
       .then(  function(){
         console.error( 'WOW: ', arguments );

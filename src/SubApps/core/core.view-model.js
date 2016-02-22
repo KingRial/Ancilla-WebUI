@@ -1,5 +1,4 @@
 import { default as Ancilla } from 'ancilla:Ancilla';
-import $ from 'jquery';
 
 /**
  * A class to describe a generic Aurelia view used by Ancilla
@@ -91,10 +90,10 @@ export class CoreViewModel {
 	* @return	{Void}
 	*
 	*/
-	error( oError, sMessage ){
-		let _iCode = oError.getCode();
+	error( oError ){
+		let _iCode = ( oError.getCode ? oError.getCode() : 999 );
 		let _sErrorMessage = oError.toString();
     Ancilla.error( '[ View %o ] %s', this, _sErrorMessage );
-		Ancilla.messageError( _iCode, ( sMessage ? sMessage : _sErrorMessage ) );
+		Ancilla.messageError( _iCode, this.getConstant( '_LANG_ERROR_' + _iCode ) );
   }
 }

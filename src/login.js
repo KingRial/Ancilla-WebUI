@@ -12,7 +12,8 @@ export class Login extends CoreViewModel{
     this.bRememberMe = true;
   }
 
-  activate( oParams, oQueryString, oRouteConfig){
+  activate( oParams, oRouteConfig){
+console.error( 'TEST: ', arguments );
     if( oRouteConfig.route === 'logout' ){
       let _View = this;
       Ancilla
@@ -38,7 +39,7 @@ export class Login extends CoreViewModel{
         Tools.windowReload('#/');
       })
       .catch(function( oError ){
-        _View.error( oError, _View.getConstant( '_LANG_ERROR_LOGIN' ) );
+        _View.error( oError );
       })
     ;
   }

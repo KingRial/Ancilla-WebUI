@@ -1,7 +1,8 @@
 const Language = {
   _LANG_ANCILLA: 'Ancilla',
   _LANG_ERROR: 'Error',
-  _LANG_ERROR_LOGIN: 'Failed login procedure. Please check credentials and try again.',
+  _LANG_ERROR_10: 'Failed login procedure. Please check credentials and try again.',
+  _LANG_ERROR_999: 'Unknown error thrown.',
   _LANG_USERNAME: 'Username',
   _LANG_PASSWORD: 'Password',
   _LANG_LOGIN: 'Login',

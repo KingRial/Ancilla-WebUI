@@ -25,6 +25,16 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     this.debug( 'Using base URL "%o" to communicate with the server.', this.__sBaseURL );
   }
 
+  getClientID(){
+// TODO: these should be configurable by advanced users
+    return Constant._OAUTH_CLIENT_ID;
+  }
+
+  getClientSecret(){
+// TODO: these should be configurable by advanced users
+    return Constant._OAUTH_CLIENT_SECRET;
+  }
+
   getAccessToken(){
     return ( this.__oToken.sAccessToken ? Promise.resolve( this.__oToken.sAccessToke ) : this._oAuthStore.getItem( 'sAccessToken' ) );
   }
@@ -268,8 +278,8 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
           grant_type: 'password',
           username: sUsername,
           password: sPassword,
-          client_id: Constant._OAUTH_CLIENT_ID,
-          client_secret: Constant._OAUTH_CLIENT_SECRET
+          client_id: _Authenticator.getClientID(),
+          client_secret: _Authenticator.getClientSecret()
       	}
       })
       .then( function( oResponse ){
@@ -301,7 +311,9 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
           },
           body: {
             grant_type: 'refresh_token',
-            refresh_token: sRefreshToken
+            refresh_token: sRefreshToken,
+            client_id: _Authenticator.getClientID(),
+            client_secret: _Authenticator.getClientSecret()
         	}
         });
       })
@@ -323,12 +335,13 @@ console.error( 'Risposta del Refresh: ', oResponseBody );
   }
 
   logOut(){
+      let _Authenticator = this;
       return this.removeAccessToken()
       .then( function(){
-        return this.removeRefreshToken();
+        return _Authenticator.removeRefreshToken();
       })
       .then( function(){
-        return this.removeTokenType();
+        return _Authenticator.removeTokenType();
       })
     ;
   }
