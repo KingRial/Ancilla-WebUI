@@ -2,6 +2,7 @@ import 'fetch';
 import {Store} from 'ancilla:Store';
 import {CoreLibrary} from 'ancilla:Core.lib';
 import { default as Constant } from 'ancilla:Constants';
+import { AncillaError } from 'ancilla:Error';
 import { default as Tools } from 'ancilla:Tools';
 
 export default class AuthenticatorOAuth2 extends CoreLibrary {
@@ -14,35 +15,77 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     // Storing oAuth Tokens
     this._oAuthStore = new Store({
       sName: 'oAuth2',
+      sStoreName: 'Token',
       driver: Constant._STORE_LOCALSTORAGE,
       sDescription: 'Storing oAuth Tokens'
     });
+    this.__bRememberMe = null;
+    this.__oToken = {};
     this.__sBaseURL = ( oOptions.sBaseURL ? Tools.getProtocol( oOptions.sBaseURL ) + '://' + Tools.getIP( oOptions.sBaseURL ) + ':' + Constant._PORT_SERVER_HTTP : '' );
     this.debug( 'Using base URL "%o" to communicate with the server.', this.__sBaseURL );
   }
 
   getAccessToken(){
-    return this._oAuthStore.getItem( 'sAccessToken' );
+    return ( this.__oToken.sAccessToken ? Promise.resolve( this.__oToken.sAccessToke ) : this._oAuthStore.getItem( 'sAccessToken' ) );
   }
 
   getRefreshToken(){
-    return this._oAuthStore.getItem( 'sRefreshToken' );
+    return ( this.__oToken.sRefreshToken ? Promise.resolve( this.__oToken.sRefreshToken ) : this._oAuthStore.getItem( 'sRefreshToken' ) );
   }
 
   getTokenType(){
-    return this._oAuthStore.getItem( 'sTokenType' );
+    return ( this.__oToken.sTokenType ? Promise.resolve( this.__oToken.sTokenType ) :  this._oAuthStore.getItem( 'sTokenType' ) );
   }
 
-  setAccessToken( sToken ){
-    return this._oAuthStore.setItem( 'sAccessToken', sToken );
+  setAccessToken( sToken, bStore ){
+    // Storing by default otherwise using argument or global remeber me stored by login procedure
+    bStore = ( typeof bStore === 'undefined' ? ( typeof this.__bRememberMe === 'undefined' ? true : this.__bRememberMe ): bStore );
+    let _Authenticator = this;
+    return ( bStore ? this._oAuthStore.setItem( 'sAccessToken', sToken ) : Promise.resolve() )
+      .then(function(){
+        _Authenticator.debug( '%s Access Token: %o', ( bStore ? 'Stored' : 'Set' ), sToken );
+        _Authenticator.__oToken.sAccessToken = sToken;
+      })
+    ;
   }
 
-  setRefreshToken( sToken ){
-    return this._oAuthStore.setItem( 'sRefreshToken', sToken );
+  setRefreshToken( sToken, bStore ){
+    // Storing by default otherwise using argument or global remeber me stored by login procedure
+    bStore = ( typeof bStore === 'undefined' ? ( typeof this.__bRememberMe === 'undefined' ? true : this.__bRememberMe ): bStore );
+    let _Authenticator = this;
+    return ( bStore ? this._oAuthStore.setItem( 'sRefreshToken', sToken ) : Promise.resolve() )
+      .then(function(){
+        _Authenticator.debug( '%s Refresh Token: %o', ( bStore ? 'Stored' : 'Set' ), sToken );
+        _Authenticator.__oToken.sRefreshToken = sToken;
+      })
+    ;
   }
 
-  setTokenType( sTokenType ){
-    return this._oAuthStore.setItem( 'sTokenType', sTokenType );
+  setTokenType( sTokenType, bStore ){
+    // Storing by default otherwise using argument or global remeber me stored by login procedure
+    bStore = ( typeof bStore === 'undefined' ? ( typeof this.__bRememberMe === 'undefined' ? true : this.__bRememberMe ): bStore );
+    let _Authenticator = this;
+    return ( bStore ? this._oAuthStore.setItem( 'sTokenType', sTokenType ) : Promise.resolve() )
+      .then(function(){
+        _Authenticator.debug( '%s Token type: %o', ( bStore ? 'Stored' : 'Set' ), sTokenType );
+        _Authenticator.__oToken.sTokenType = sTokenType;
+      })
+    ;
+  }
+
+  removeAccessToken(){
+    delete this.__oToken.sAccessToken;
+    return this._oAuthStore.removeItem( 'sAccessToken' );
+  }
+
+  removeRefreshToken(){
+    delete this.__oToken.sRefreshToken;
+    return this._oAuthStore.removeItem( 'sRefreshToken' );
+  }
+
+  removeTokenType(){
+    delete this.__oToken.sTokenType;
+    return this._oAuthStore.removeItem( 'sTokenType' );
   }
 
   isAuthenticated(){
@@ -159,9 +202,10 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
         } else {
           return oResponse.text()
             .then(function( sText ){
-              let _oError = new Error( oResponse.statusText + ': ' + sText  );
-              _oError.response = oResponse;
-              throw _oError;
+              //let _oError = new Error( oResponse.status, oResponse.statusText + ': ' + sText  );
+              //_oError.response = oResponse;
+              //throw _oError;
+              throw new AncillaError( oResponse.status, oResponse.statusText + ': ' + sText  );
             })
           ;
         }
@@ -178,7 +222,18 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     oOptions = Object.assign( oOptions, {
       method: 'POST'
     } );
-    return this.fetch( sURL, oOptions );
+    let _Authenticator = this;
+    return this.fetch( sURL, oOptions )
+      .catch( function( oError ){
+        console.error( 'Post fallita; necessario refresh ? ', oError );
+        return _Authenticator.refreshToken()
+          .then( function(){
+            console.error( 'Ripeti chiamata POST ora che è tutto refreshato' );
+            return _Authenticator.fetch( sURL, oOptions );
+          })
+        ;
+      })
+    ;
   }
 
   get( sURL, oOptions ){
@@ -186,12 +241,26 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     oOptions = Object.assign( oOptions, {
       method: 'GET'
     } );
-    return this.fetch( sURL, oOptions );
+    let _Authenticator = this;
+    return this.fetch( sURL, oOptions )
+      .catch( function( oError ){
+        console.error( 'Post fallita; necessario refresh ? ', oError );
+        return _Authenticator.refreshToken()
+          .then( function(){
+            console.error( 'Ripeti chiamata GET ora che è tutto refreshato' );
+            return _Authenticator.fetch( sURL, oOptions );
+          })
+        ;
+      })
+    ;
   }
 
-  logInAs( sUsername, sPassword ){
+  logInAs( sUsername, sPassword, bRememberMe ){
+    this.__bRememberMe = bRememberMe;
     let _Authenticator = this;
-    return this.post( '/oauth/token', {
+    // Using fetch instead of "post" because we don't want to start another refreshToken request if this call fails
+    return this.fetch( '/oauth/token', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded' // Current oAuth server requires such Content-Type
         },
@@ -206,17 +275,61 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
       .then( function( oResponse ){
         return oResponse.json()
           .then( function( oResponseBody ){
-              _Authenticator.setAccessToken( oResponseBody.access_token );
-              _Authenticator.setRefreshToken( oResponseBody.refresh_token );
-              _Authenticator.setTokenType( oResponseBody.token_type );
+            return Promise.all( [
+              _Authenticator.setAccessToken( oResponseBody.access_token, bRememberMe ),
+              _Authenticator.setRefreshToken( oResponseBody.refresh_token, bRememberMe ),
+              _Authenticator.setTokenType( oResponseBody.token_type, bRememberMe )
+            ] );
           })
         ;
+      })
+      .catch( function( oError ){
+        throw new AncillaError( Constant._ERROR_FAILED_LOGIN, oError.toString() );
+      })
+    ;
+  }
+
+  refreshToken(){
+    let _Authenticator = this;
+    return this.getRefreshToken()
+      .then( function( sRefreshToken ){
+        // Using fetch instead of "post" because we don't want to start another refreshToken request if this call fails
+        return _Authenticator.fetch( '/oauth/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded' // Current oAuth server requires such Content-Type
+          },
+          body: {
+            grant_type: 'refresh_token',
+            refresh_token: sRefreshToken
+        	}
+        });
+      })
+      .then( function( oResponse ){
+        return oResponse.json()
+          .then( function( oResponseBody ){
+console.error( 'Risposta del Refresh: ', oResponseBody );
+            return Promise.all( [
+              _Authenticator.setAccessToken( oResponseBody.access_token ),
+              _Authenticator.setRefreshToken( oResponseBody.refresh_token )
+            ] );
+          })
+        ;
+      })
+      .catch( function( oError ){
+        throw new AncillaError( Constant._ERROR_FAILED_OAUTH_REFRESH, oError.toString() );
       })
     ;
   }
 
   logOut(){
-    // TODO:
-    console.error( 'TODO logout' );
+      return this.removeAccessToken()
+      .then( function(){
+        return this.removeRefreshToken();
+      })
+      .then( function(){
+        return this.removeTokenType();
+      })
+    ;
   }
 }

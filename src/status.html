@@ -1,0 +1,10 @@
+<template>
+  <!-- Error -->
+  <div repeat.for="oError of messages.aErrors">
+    <div class="app-alert alert alert-danger alert-dismissible fade in" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close" click.delegate="handleMessage('error',$index)"><span aria-hidden="true">&times;</span></button>
+      <strong class="code">( ${getConstant('_LANG_ERROR')}: ${oError.iCode} )</strong>
+      <span class="description">${oError.sMessage}</span>
+    </div>
+  </div>
+</template>

@@ -2,13 +2,12 @@ import {CoreLibrary} from 'ancilla:Core.lib';
 import { default as Constant } from 'ancilla:Constants';
 import { default as Tools} from 'ancilla:Tools';
 import { default as Authenticator} from 'ancilla:Authenticator.oAuth2';
+import { default as DBManager } from 'ancilla:DBManager';
 import {Websocket} from 'ancilla:Websocket';
 import {WidgetCore} from 'ancilla:Widget.core';
 import {ObjectUser} from 'ancilla:Object.user';
 //import { default as Forge} from 'forge';
 //import 'bluebird'; // TODO: should I use bluebird ? it gives warnings with aurelia
-//import breeze from 'breeze';
-//var query = new breeze.EntityQuery();
 // TODO:: dynamic languages
 import { default as Language } from 'languages:english';
 
@@ -51,10 +50,21 @@ class AncillaClass extends CoreLibrary {
 		this.__oStatus = {
 			bIsConnected: false
 		};
+		// Ancilla Messages
+		this.oMessages = {
+			aErrors: [],
+			aWarnings: [],
+			aInfos: []
+		};
 		this.__oServerRules = null;
 		//oAuth
 		this.__oAuth = new Authenticator( {
 			sBaseURL: this.getServerAddress()
+		});
+		//DB Manager
+		this.__oDBManager = new DBManager({
+			sBaseURL: this.getServerAddress(),
+			oAuthenticator: this.__oAuth
 		});
 	}
 
@@ -64,10 +74,6 @@ class AncillaClass extends CoreLibrary {
 
 	setOption( sField, value ){
 		this.__oOptions[ sField ] = value;
-	}
-
-	getStatus( sStatus ){
-		return ( sStatus ? this.__oStatus[ sStatus ] : this.__oStatus );
 	}
 
 	getProtocol( sType, sURL ){
@@ -150,33 +156,37 @@ class AncillaClass extends CoreLibrary {
 		return this.__oServerRules;
 	}
 
-/*
-	getAccessToken(){
-		return this.__oAuth.getAccessToken();
-	}
-
-	getRefreshToken(){
-		return this.__oAuth.getRefreshToken();
-	}
-*/
 	isAuthenticated(){
-//TODO: http://blog.opinionatedapps.com/aureliauth-a-token-based-authentication-plugin-for-aurelia/
-/*
-		let _oUser = this.getCurrentUser();
-		let _oServerRules = this.getServerRules();
-		return ( _oUser && _oServerRules ? true : false );
-*/
 		return this.__oAuth.isAuthenticated();
 	}
 
-	logInAs( sUsername, sPassword ){
-		return this.__oAuth.logInAs( sUsername, sPassword );
+	logInAs( sUsername, sPassword, bRememberMe ){
+		//let _Ancilla = this;
+		return this.__oAuth.logInAs( sUsername, sPassword, bRememberMe );
 	}
 
 	logOut(){
 		return this.__oAuth.logOut();
 	}
-
+/*
+.then( function(){
+	//return _Ancilla.query();
+console.error( 'Breeze: ', breeze );
+	breeze.EntityManager.executeQuery(
+		new breeze.EntityQuery().from('OBJECTS').where('id', '=', 1)
+	)
+		.then(  function(){
+			console.error( 'WOW: ', arguments );
+		})
+		.catch( function(){
+			console.error( 'KAPUT' );
+		})
+	;
+})
+	query(){
+		return new breeze.EntityQuery();
+	}
+*/
 	/**
 	 * Method used to obtain a web unique ID ( UID )
 	 *
@@ -189,6 +199,7 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.getUUID();
 	 */
+	/*
 	getUUID(){
 		if( !this._sUUID ){
 //TODO: handle localstorage with a custom lib
@@ -210,10 +221,49 @@ class AncillaClass extends CoreLibrary {
 		this.info( 'using UID: "%o"', this._sUUID );
 		return this._sUUID;
 	}
+	*/
+
+	getStatus( sStatus ){
+		return ( sStatus ? this.__oStatus[ sStatus ] : this.__oStatus );
+	}
 
 	__onStatusChange( sStatus, value ){
 		this.debug( '[__onStatusChange] changed status "%o" to "%o"', sStatus, value );
 		this.__oStatus[ sStatus ] = value;
+	}
+
+	getMessages(){
+		return this.oMessages;
+	}
+
+	__getMessageArrayNameFromType( sType ){
+		return 'a' + sType.charAt(0).toUpperCase() + sType.slice(1)+ 's';
+	}
+
+	addMessage( sType, oMessage ){
+		oMessage = Object.assign({
+			iCode: null,
+			sMessage: null
+		}, oMessage );
+		let _sMessageType = this.__getMessageArrayNameFromType( sType );
+		let _aMessage = this.oMessages[ _sMessageType ];
+		let _aDuplicateMessage = _aMessage.filter( function( oItem ){
+			return ( oItem.iCode === oMessage.iCode );
+		});
+		if( _aDuplicateMessage.length === 0){
+			_aMessage.push( oMessage );
+		}
+	}
+
+	messageError( iCode, sMessage ){
+		this.addMessage( 'error', {
+			iCode: iCode,
+			sMessage: sMessage
+		} );
+	}
+
+	handleMessage( sType, iIndex ){
+    this.oMessages[ this.__getMessageArrayNameFromType( sType ) ].splice( iIndex, 1 );
 	}
 
 	/**
@@ -240,6 +290,7 @@ class AncillaClass extends CoreLibrary {
 		return new Promise( function( fResolve, fReject ){
 			_Ancilla.getWebSocket()
 					.connect( sWsURL )
+					/*
 					.then( function(){
 						_Ancilla.trigger( { sType: Constant._EVENT_TYPE_INTRODUCE } )
 							.then( function( oEvent ){
@@ -255,6 +306,7 @@ class AncillaClass extends CoreLibrary {
 							})
 						;
 					})
+					*/
 					.catch( function( oError ){
 						_Ancilla.error( '[ Error: %o ] Unable to connect to websocket', oError );
 						fReject( oError );

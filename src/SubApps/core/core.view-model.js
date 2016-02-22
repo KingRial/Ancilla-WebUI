@@ -1,4 +1,5 @@
 import { default as Ancilla } from 'ancilla:Ancilla';
+import $ from 'jquery';
 
 /**
  * A class to describe a generic Aurelia view used by Ancilla
@@ -12,6 +13,10 @@ import { default as Ancilla } from 'ancilla:Ancilla';
 
 export class CoreViewModel {
 
+	getAncilla(){
+		return Ancilla;
+	}
+
 	/**
    * Method used by the view to get a Language constant
    *
@@ -23,7 +28,7 @@ export class CoreViewModel {
    * @return	{String}	The translated language constant using the current selected language
    *
    * @example
-   *   {$getConstant('_LANG_LOADING')}
+   *   ${getConstant('_LANG_LOADING')}
    */
 	getConstant( sString ){
 		return Ancilla.getConstant( sString );
@@ -40,10 +45,12 @@ export class CoreViewModel {
 	* @return	{Promise}		The promise is successfull when the object has been loaded
 	*
 	*/
+	/*
 	loadObj( IDsOrTypes ){
 		//var _View = this;
 		return Ancilla.loadObj( IDsOrTypes );
 	}
+	*/
 
 	/*
 	onEnterPressed( oEvent ){
@@ -78,13 +85,16 @@ export class CoreViewModel {
 	* @method    error
 	* @public
 	*
-	* @param     {sMessage}		sMessage		A message to display ( same use as javascript console method )
-	* @param     {String/Number/Object}		...rest		All the variables used inside the message
+	* @param     {Object}		oError		The Ancilla error object
+	* @param     {String}		[sMessage]		A different message to display into the UI
 	*
-	* @return	{Promise}		The promise is successfull when the object has been loaded
+	* @return	{Void}
 	*
 	*/
-	error( sMessage, ...rest ){
-    Ancilla.error( '[ View %o ]' + sMessage, this, ...rest );
+	error( oError, sMessage ){
+		let _iCode = oError.getCode();
+		let _sErrorMessage = oError.toString();
+    Ancilla.error( '[ View %o ] %s', this, _sErrorMessage );
+		Ancilla.messageError( _iCode, ( sMessage ? sMessage : _sErrorMessage ) );
   }
 }

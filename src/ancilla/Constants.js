@@ -1,6 +1,8 @@
 const Constants = {
   _ANCILLA_CORE_VERSION: "0.1.0",
   _NO_ERROR: 0,
+  _ERROR_FAILED_LOGIN: 10,
+  _ERROR_FAILED_OAUTH_REFRESH: 100,
   _LOG_NONE: 0,
   _LOG_ERROR: 1,
   _LOG_WARN: 2,

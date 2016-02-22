@@ -1,6 +1,9 @@
 <template>
 	<!-- CSS -->
-	<!--<require from="bootstrap/css/bootstrap.css"></require>-->
+	<require from="CSSs/main.css"></require>
+	<!-- SW Status -->
+	<require from="status"></require>
+  <status messages.bind="getAncilla().getMessages()" ></status>
 	<!-- Navigation -->
 	<nav class="navbar navbar-default">
     <div class="container">
@@ -21,9 +24,8 @@
       </div>
     </div>
   </nav>
-	<!-- Viewport -->
+	<!-- App Viewport -->
 	<div class="viewport with-header">
-		<!-- Router Content -->
 		<div class="viewport-content">
 			<router-view></router-view>
 		</div>

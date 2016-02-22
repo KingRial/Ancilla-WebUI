@@ -10,7 +10,7 @@ export class Store extends CoreLibrary {
       driver: [ Constant._STORE_INDEXEDDB, Constant._STORE_LOCALSTORAGE, Constant._STORE_WEBSQL ], // An array of drivers or a single driver
       sVersion: Constant._ANCILLA_CORE_VERSION,
       iSize: 4980736, // Size of database, in bytes. WebSQL-only for now.
-      sStoreName: 'Generic_Store', // Should be alphanumeric, with underscores.
+      sStoreName: ( oOptions.sName ? oOptions.sName : 'Generic_Store' ), // Should be alphanumeric, with underscores.
       sDescription: null
     }, oOptions );
     super({
@@ -34,6 +34,7 @@ export class Store extends CoreLibrary {
     return this.__oStore.getItem( sKey )
       .then( function( value ){
         _Store.debug( 'Get key %o: %o', sKey, value );
+        return value;
       })
       .catch( function( error ){
         _Store.error( 'Error %o: Unable to get key %o', error, sKey );
@@ -49,6 +50,18 @@ export class Store extends CoreLibrary {
       })
       .catch( function( error ){
         _Store.error( 'Error %o: Unable to set key %o to %o', error, sKey, value );
+      })
+    ;
+  }
+
+  removeItem( sKey ){
+    let _Store = this;
+    return this.__oStore.removeItem( sKey )
+      .then( function(){
+        _Store.debug( 'Removed key %o', sKey );
+      })
+      .catch( function( error ){
+        _Store.error( 'Error %o: Unable to remove key %o', error, sKey );
       })
     ;
   }

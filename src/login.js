@@ -9,34 +9,36 @@ export class Login extends CoreViewModel{
     super();
     this.sUsername = '';
     this.sPassword = '';
-    this.bRememberMe = false;
+    this.bRememberMe = true;
   }
 
   activate( oParams, oQueryString, oRouteConfig){
     if( oRouteConfig.route === 'logout' ){
+      let _View = this;
       Ancilla
         .logOut()
         .then( function(){
-          Ancilla.setCurrentUser( null );
+          return Ancilla.logOut( null );
+        })
+        .then( function(){
           Tools.windowReload('#/login');
         })
-        .catch( function( error ){
-// TODO: UI error
-          Ancilla.error( 'Error "%o"; unable to logout', error );
+        .catch( function( oError ){
+          _View.error( oError, _View.getConstant( '_LANG_ERROR_LOGOUT' ) );
         })
       ;
     }
   }
 
   login(){
-    Ancilla.logInAs( this.sUsername, this.sPassword )
+    let _View = this;
+    Ancilla.logInAs( this.sUsername, this.sPassword, this.bRememberMe )
       .then(function(){
         Ancilla.info( 'logged as "%o"', ( Ancilla.getCurrentUser() ? Ancilla.getCurrentUser().name : 'noone' ) );
         Tools.windowReload('#/');
       })
-      .catch(function( error ){
-// TODO: UI error
-        Ancilla.error( '%o; unable to login.', error );
+      .catch(function( oError ){
+        _View.error( oError, _View.getConstant( '_LANG_ERROR_LOGIN' ) );
       })
     ;
   }
