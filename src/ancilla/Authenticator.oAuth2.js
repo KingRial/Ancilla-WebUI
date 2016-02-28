@@ -98,6 +98,18 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     return this._oAuthStore.removeItem( 'sTokenType' );
   }
 
+  clearTokens(){
+    let _Authenticator = this;
+    return this.removeAccessToken()
+      .then( function(){
+        return _Authenticator.removeRefreshToken();
+      })
+      .then( function(){
+        return _Authenticator.removeTokenType();
+      })
+    ;
+  }
+
   isAuthenticated(){
     return this.getAccessToken()
       .then( function( sAccessToken ){
@@ -108,17 +120,21 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
 
   __parseFetchBodyRequest( oRequest ){
     let _sContentType = oRequest.headers[ 'Content-Type' ].split( ';' )[ 0 ];
+    let _newBody = null;
     switch( _sContentType ){
       case 'application/json':
-        oRequest.body = ( typeof oRequest.body === 'object' ? JSON.stringify( oRequest.body ) : oRequest.body );
+        _newBody = ( typeof oRequest.body === 'object' ? JSON.stringify( oRequest.body ) : oRequest.body );
       break;
       case 'application/x-www-form-urlencoded':
-        oRequest.body = this.__parseFetchBodyRequestToFormURLEncode( oRequest.body );
+        _newBody = this.__parseFetchBodyRequestToFormURLEncode( oRequest.body );
       break;
       default:
         // Nothing to do
+        _newBody = oRequest.body;
       break;
     }
+    this.debug( 'Parsed body request %o to %o', oRequest.body, _newBody );
+    oRequest.body = _newBody;
     return oRequest;
   }
 
@@ -232,18 +248,7 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     oOptions = Object.assign( oOptions, {
       method: 'POST'
     } );
-    let _Authenticator = this;
-    return this.fetch( sURL, oOptions )
-      .catch( function( oError ){
-        console.error( 'Post fallita; necessario refresh ? ', oError );
-        return _Authenticator.refreshToken()
-          .then( function(){
-            console.error( 'Ripeti chiamata POST ora che è tutto refreshato' );
-            return _Authenticator.fetch( sURL, oOptions );
-          })
-        ;
-      })
-    ;
+    return this.handleRequest( () => this.fetch( sURL, oOptions ) );
   }
 
   get( sURL, oOptions ){
@@ -251,14 +256,25 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     oOptions = Object.assign( oOptions, {
       method: 'GET'
     } );
+    return this.handleRequest( () => this.fetch( sURL, oOptions ) );
+  }
+
+  handleRequest( fRequest ){
     let _Authenticator = this;
-    return this.fetch( sURL, oOptions )
+    return fRequest()
       .catch( function( oError ){
-        console.error( 'Post fallita; necessario refresh ? ', oError );
-        return _Authenticator.refreshToken()
+        _Authenticator.debug( 'Request failed ( %o ); trying to get a refreshed access token...', oError );
+        return _Authenticator.refreshToken( oError )
           .then( function(){
-            console.error( 'Ripeti chiamata GET ora che è tutto refreshato' );
-            return _Authenticator.fetch( sURL, oOptions );
+            return fRequest();
+          })
+          .catch( function( oError ){
+            _Authenticator.error( 'Failed to get a refreshed access token ( %o ); logging out application...', oError );
+            return _Authenticator.logOut()
+              .then(function(){
+                throw oError;
+              })
+            ;
           })
         ;
       })
@@ -303,24 +319,27 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     let _Authenticator = this;
     return this.getRefreshToken()
       .then( function( sRefreshToken ){
-        // Using fetch instead of "post" because we don't want to start another refreshToken request if this call fails
-        return _Authenticator.fetch( '/oauth/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded' // Current oAuth server requires such Content-Type
-          },
-          body: {
-            grant_type: 'refresh_token',
-            refresh_token: sRefreshToken,
-            client_id: _Authenticator.getClientID(),
-            client_secret: _Authenticator.getClientSecret()
-        	}
-        });
+        if( sRefreshToken ){
+          // Using fetch instead of "post" because we don't want to start another refreshToken request if this call fails
+          return _Authenticator.fetch( '/oauth/token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded' // Current oAuth server requires such Content-Type
+            },
+            body: {
+              grant_type: 'refresh_token',
+              refresh_token: sRefreshToken,
+              client_id: _Authenticator.getClientID(),
+              client_secret: _Authenticator.getClientSecret()
+          	}
+          });
+        } else {
+          new AncillaError( Constant._ERROR_FAILED_OAUTH_REFRESH, 'No refresh token set' );
+        }
       })
       .then( function( oResponse ){
         return oResponse.json()
           .then( function( oResponseBody ){
-console.error( 'Risposta del Refresh: ', oResponseBody );
             return Promise.all( [
               _Authenticator.setAccessToken( oResponseBody.access_token ),
               _Authenticator.setRefreshToken( oResponseBody.refresh_token )
@@ -335,14 +354,6 @@ console.error( 'Risposta del Refresh: ', oResponseBody );
   }
 
   logOut(){
-      let _Authenticator = this;
-      return this.removeAccessToken()
-      .then( function(){
-        return _Authenticator.removeRefreshToken();
-      })
-      .then( function(){
-        return _Authenticator.removeTokenType();
-      })
-    ;
+      return this.clearTokens();
   }
 }

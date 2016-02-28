@@ -16,15 +16,8 @@ export default class DBManager extends CoreLibrary {
     this.__sBaseURL = ( oOptions.sBaseURL ? Tools.getProtocol( oOptions.sBaseURL ) + '://' + Tools.getIP( oOptions.sBaseURL ) + ':' + Constant._PORT_SERVER_HTTP + '/' : '' ) + 'breeze';
     this.debug( 'Using base URL "%o" to communicate with the server.', this.__sBaseURL );
     this.__oDB = new breeze.EntityManager( this.__sBaseURL );
-
+// TODO: using fetch library in the Authenticator class, instead of the current AJAX adapter
     breeze.config.initializeAdapterInstance("modelLibrary", "backingStore");
-
-    let _DBManager = this;
-    this.query(
-      _DBManager.getEntityQuery()
-        .from('OBJECTS')
-        .where('id', '==', 1)
-    );
   }
 
 
@@ -54,30 +47,25 @@ export default class DBManager extends CoreLibrary {
     ;
   }
 
-  refreshAccessToken(){
-    return this.__oAuthenticator.refreshToken();
+  handleRequest( fRequest ){
+    let _DBManager = this;
+    return this.updateAccessToken()
+      .then( function(){
+        return _DBManager.__oAuthenticator.handleRequest( fRequest );
+      })
+    ;
   }
 
   query( oEntitQuery ){
     let _DBManager = this;
-      this.updateAccessToken()
-      .then( function(){
-        return _DBManager.__oDB.executeQuery( oEntitQuery );
-      })
-      .catch( function(){
-console.error( 'Failed query' );
-        return _DBManager.refreshAccessToken()
-          .then( function(){
-            console.error( 'Ripeti QUERY ora che è tutto refreshato' );
-            return _DBManager.__oDB.executeQuery( oEntitQuery );
-          })
-        ;
-      })
+    _DBManager.debug( 'Executing query: %o ...', oEntitQuery );
+// TODO handle execute locally for future DB caching
+    return this.handleRequest( () =>this.__oDB.executeQuery( oEntitQuery ) )
       .then(  function(){
-        console.error( 'WOW: ', arguments );
+        console.error( 'Query OK: ', arguments );
       })
-      .catch( function( error ){
-        console.error( 'KAPUT: ', error );
+      .catch( function( oError ){
+        _DBManager.error( 'Failed query: %o with error: %o', oEntitQuery, oError );
       })
     ;
   }

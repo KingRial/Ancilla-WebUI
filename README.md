@@ -43,40 +43,21 @@ To run the app, follow these steps.
   ```
 5. Ensure that [jspm](http://jspm.io/) is installed. If you need to install it, use the following command:
 
-   ```shell
-   npm install -g jspm
-   ```
-   > **Note:** jspm queries GitHub to install semver packages, but GitHub has a rate limit on anonymous API requests. It is advised that you configure jspm with your GitHub credentials in order to avoid problems. You can do this by executing `jspm registry config github` and following the prompts.
-   >**Note:** Windows users, if you experience an error of "unknown command unzip" you can solve this problem by doing `npm install -g unzip`.
-6. To run the app, execute the following command:
+  ```shell
+  npm install -g jspm
+  ```
+  > **Note:** jspm queries GitHub to install semver packages, but GitHub has a rate limit on anonymous API requests. It is advised that you configure jspm with your GitHub credentials in order to avoid problems. You can do this by executing `jspm registry config github` and following the prompts.
+  >**Note:** Windows users, if you experience an error of "unknown command unzip" you can solve this problem by doing `npm install -g unzip`.
+6. Ensure that [http-server](https://github.com/indexzero/http-server) is installed. If you need to install it, use the following command:
 
   ```shell
-  gulp
+  npm install -g http-server
   ```
-  or
+7. To run the app, execute the following command:
+
   ```shell
-  gulp watch
+  http-server -o
   ```
-
-  If you desire a minified and compiled version of the Web UI use:
-  ```shell
-  gulp watch-release
-  ```
-
-  If you desire the list of gulp actions use:
-  ```shell
-  gulp help
-  ```
-
-7. Browse to [http://localhost:9000](http://localhost:9000) to see the app. You can make changes in the code found under `Compiler/source` and the browser should auto-refresh itself as you save files.
-
-> Note: At present there is a bug in the HTMLImports polyfill which only occurs on IE. We have submitted a pull request to the team with the fix. In the mean time, if you want to test on IE, you can work around the issue by explicitly adding a script tag before you load system.js. The script tag should look something like this (be sure to confirm the version number):
-
-```html
-<script src="jspm_packages/github/webcomponents/webcomponentsjs@0.5.2/HTMLImports.js"></script>
-```
-
-8. The compiled web app will be found under `Compiler/development` or `Compiler/release`
 
 Running The Unit Tests
 ----------------------------
