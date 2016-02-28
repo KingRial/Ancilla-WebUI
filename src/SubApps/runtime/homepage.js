@@ -1,8 +1,12 @@
-import {CoreViewModel} from '../core/core.view-model'
+import {CoreViewModel} from '../core/core.view-model';
 import { default as Constant } from 'ancilla:Constants';
 
 export class Homepage extends CoreViewModel{
-  aEnvironments = [];
+
+  constructor(){
+    super();
+    this.aEnvironments = [];
+  }
 
   activate(){
     // Should load "Favourites" environment before showing something

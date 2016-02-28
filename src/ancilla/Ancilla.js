@@ -407,14 +407,14 @@ class AncillaClass extends CoreLibrary {
 			return this.query({
 				    from: 'OBJECT',
 				    where: {
-				        'id': { in: _aObjectIDsToSearch }
+							'id': { in: _aObjectIDsToSearch }
 				    }
 				})
 				.then( function(){
 					//var _oSurroundings = oAncillaEvent.oRows;
 					//_Ancilla.__cacheSurroundings( _oSurroundings )
 console.error( 'TODO: cache query results: %o', arguments );
-					return _Ancilla.__getObjByIDFromCache( _aIDs );
+					//return _Ancilla.__getObjByIDFromCache( _aIDs );
 				})
 				.catch( function( oError ){
 					_Ancilla.error( '[Error "%o"] failed to load objects "%o" from server', oError, _aIDs );

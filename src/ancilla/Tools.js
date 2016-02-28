@@ -78,7 +78,7 @@ export class ToolsClass extends CoreLibrary {
 	}
 
 	isAbsoluteURL( sURL ){
-		return /^(?:\/|[a-z]+:\/\/)/.test( sURL );
+		return /^([a-z]+:\/\/)/.test( sURL );
 	}
 
 	qualifyURL( sBaseURL, sRelativeURL ){

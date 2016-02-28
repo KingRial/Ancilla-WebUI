@@ -208,33 +208,46 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
 */
   fetch( sURL, oOptions ){
     let _Authenticator = this;
-    oOptions = Object.assign({
-      method: 'POST',
-      //credentials: 'include', // CORS and Cookies
-      //mode: 'cors',
-      //redirect: 'follow',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    }, oOptions );
-    oOptions = this.__parseFetchBodyRequest( oOptions );
-    _Authenticator.debug( 'Fetching: %o with options: %o', sURL, oOptions );
-    return fetch( this.__sBaseURL + sURL, oOptions )
-      .then( function( oResponse ){ // Handling errors
-        if( oResponse.status >= 200 && oResponse.status < 300 ){
-          //return this.__parseFetchBodyReponse( oResponse );
-          return oResponse;
-        } else {
-          return oResponse.text()
-            .then(function( sText ){
-              //let _oError = new Error( oResponse.status, oResponse.statusText + ': ' + sText  );
-              //_oError.response = oResponse;
-              //throw _oError;
-              throw new AncillaError( oResponse.status, oResponse.statusText + ': ' + sText  );
-            })
-          ;
-        }
+    return this.getTokenType()
+      .then( function( sTokenType ){
+        return _Authenticator.getAccessToken()
+          .then( function( sAccessToken ){
+            return ( sTokenType && sAccessToken ? sTokenType.charAt(0).toUpperCase() + sTokenType.slice(1) + ' ' + sAccessToken : null );
+          })
+        ;
+      })
+      .then( function( sAuthorization ){
+        oOptions = Object.assign({
+          method: 'POST',
+          //credentials: 'include', // CORS and Cookies
+          //mode: 'cors',
+          //redirect: 'follow',
+          headers: {
+            'Authorization': sAuthorization,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }, oOptions );
+        oOptions = _Authenticator.__parseFetchBodyRequest( oOptions );
+        sURL = ( Tools.isAbsoluteURL( sURL ) ? sURL : _Authenticator.__sBaseURL + sURL );
+        _Authenticator.debug( 'Fetching: %o with options: %o', sURL, oOptions );
+        return fetch( sURL, oOptions )
+          .then( function( oResponse ){ // Handling errors
+            if( oResponse.status >= 200 && oResponse.status < 300 ){
+              //return _Authenticator.__parseFetchBodyReponse( oResponse );
+              return oResponse;
+            } else {
+              return oResponse.text()
+                .then(function( sText ){
+                  //let _oError = new Error( oResponse.status, oResponse.statusText + ': ' + sText  );
+                  //_oError.response = oResponse;
+                  //throw _oError;
+                  throw new AncillaError( oResponse.status, oResponse.statusText + ': ' + sText  );
+                })
+              ;
+            }
+          })
+        ;
       })
       .catch( function( oError ){
         _Authenticator.error( '%o. Failed to fetch %o with following options: %o', oError, sURL, oOptions );
@@ -245,7 +258,7 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
 
   post( sURL, oOptions ){
     // Forcing method
-    oOptions = Object.assign( oOptions, {
+    oOptions = Object.assign( oOptions || {}, {
       method: 'POST'
     } );
     return this.handleRequest( () => this.fetch( sURL, oOptions ) );
@@ -253,7 +266,7 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
 
   get( sURL, oOptions ){
     // Forcing method
-    oOptions = Object.assign( oOptions, {
+    oOptions = Object.assign( oOptions || {}, {
       method: 'GET'
     } );
     return this.handleRequest( () => this.fetch( sURL, oOptions ) );
