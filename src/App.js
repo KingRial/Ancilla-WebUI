@@ -37,7 +37,7 @@ class AuthorizeStep {
       return Ancilla.isAuthenticated()
         .then( function( bIsAuthenticated ){
           let _oUser = Ancilla.getCurrentUser();
-          Ancilla.debug( '[Login Check] %o is logged...', ( _oUser ? _oUser : 'noone' ) );
+          Ancilla.debug( '[Login Check] %o %s authenticated...', ( _oUser ? _oUser : 'noone' ), ( bIsAuthenticated ? 'is' : 'is NOT' ) );
           if( bIsAuthenticated ){
             return next();
     			} else {

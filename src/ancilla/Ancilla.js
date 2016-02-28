@@ -168,25 +168,7 @@ class AncillaClass extends CoreLibrary {
 	logOut(){
 		return this.__oAuth.logOut();
 	}
-/*
-.then( function(){
-	//return _Ancilla.query();
-console.error( 'Breeze: ', breeze );
-	breeze.EntityManager.executeQuery(
-		new breeze.EntityQuery().from('OBJECTS').where('id', '=', 1)
-	)
-		.then(  function(){
-			console.error( 'WOW: ', arguments );
-		})
-		.catch( function(){
-			console.error( 'KAPUT' );
-		})
-	;
-})
-	query(){
-		return new breeze.EntityQuery();
-	}
-*/
+
 	/**
 	 * Method used to obtain a web unique ID ( UID )
 	 *
@@ -362,10 +344,18 @@ console.error( 'Breeze: ', breeze );
 		return this.getWebSocket().trigger( oEventOptions );
 	}
 
+	getDB(){
+		return this.__oDBManager;
+	}
+
+	query( oJSONQuery ){
+		return this.getDB().query( oJSONQuery );
+	}
+
 	/**
 	 * Method used load an object into the library
 	 *
-	 * @method	loadObj
+	 * @method	getObj
 	 * @private
 	 *
 	 * @param		{Number/String/Array}		toLoad	An object's ID, an object's type, an array of object's IDs or an array of object's types
@@ -373,26 +363,27 @@ console.error( 'Breeze: ', breeze );
 	 * @return	{Promise}	returns a Promise successfull when object has been loaded or failed when an error occurs
 	 *
 	 * @example
-	 *   Ancilla.loadObj( 'GROUP' );
+	 *	Ancilla.getObj( 1 );
+	 *	Ancilla.getObj( [ 1, 2, 3, 4 ] );
+	 *  Ancilla.getObj( 'GROUP' );
+	 *  Ancilla.getObj( [ 'GROUP', 'USER' ] );
 	 */
-/*
-	loadObj( toLoad ){
+	getObj( toLoad ){
 		toLoad = ( Array.isArray( toLoad ) ? toLoad : [ toLoad ] );
-		var _bLoadByID = ( isNaN( toLoad[ 0 ] ) ? false : true );
-		var _bLoadByType = ( isNaN( toLoad[ 0 ] ) ? true : false );
+		let _bLoadByID = ( isNaN( toLoad[ 0 ] ) ? false : true );
+		let _bLoadByType = ( isNaN( toLoad[ 0 ] ) ? true : false );
 		if( _bLoadByID ){
-			return this.__loadObjByID( toLoad );
+			return this.__getObjByID( toLoad );
 		} else if( _bLoadByType ) {
-			return this.__loadObjByType( toLoad );
+			return this.__getObjByType( toLoad );
 		} else {
 			this.error('unable to understand how to load objects; please check the parameters.');
 		}
 	}
-*/
 	/**
 	 * Method used load an object into the library
 	 *
-	 * @method    __loadObjByID
+	 * @method    __getObjByID
 	 * @private
 	 *
 	 * @param		{Number/Array}		ids				An ID of the object table or an array of IDs
@@ -400,43 +391,73 @@ console.error( 'Breeze: ', breeze );
 	 * @return	{Promise}	returns a Promise successfull when object has been loaded or failed when an error occurs
 	 *
 	 * @example
-	 *   Ancilla.__loadObjByID( 1 );
+	 *   Ancilla.__getObjByID( 1 );
 	 */
-/*
-	__loadObjByID( ids ){
-		var _oLoadPromise = null;
-		var _Ancilla = this;
-		ids = ( Array.isArray( ids ) ? ids : [ ids ] );
-		var _aObjectIDsToSearch = this.__objIDsNotLoaded( ids );
+	__getObjByID( ids ){
+		let _oLoadPromise = null;
+		let _Ancilla = this;
+		let _bIDsIsArray = Array.isArray( ids );
+		let _aIDs = ( _bIDsIsArray ? ids : [ ids ] );
+		let _aObjectIDsToSearch = this.__getObjIDsNotLoaded( ids );
 		if( _aObjectIDsToSearch.length === 0 ){
-			this.debug( '[__loadObjByID] nothing to load' );
-			_oLoadPromise = Promise.resolve();
+			this.debug( '[__loadObjByID] nothing to load from server' );
+			_oLoadPromise = Promise.resolve( this.__getObjByIDFromCache( ids ) );
 		} else {
 			this.debug( '[__loadObjByID] object\'s IDs to load from server: "%o"', _aObjectIDsToSearch );
-			_oLoadPromise = new Promise( function( fResolve, fReject ){
-				_Ancilla
-					.trigger({ sType: Constant._EVENT_TYPE_OBJ_LOAD_BY_ID, ids: _aObjectIDsToSearch })
-					.then( function( oAncillaEvent ){
-						var _oSurroundings = oAncillaEvent.oRows;
-						_Ancilla.__cacheSurroundings( _oSurroundings )
-							.then( function(){
-								fResolve();
-							})
-							.catch(function( oError ){
-								fReject( oError );
-							})
-						;
-					})
-					.catch( function( oError ){
-						_Ancilla.error( '[__loadObjByID][Error "%o"] failed to load objects "%o"', oError, ids );
-						fReject( oError );
-					})
-				;
-			} );
+			return this.query({
+				    from: 'OBJECT',
+				    where: {
+				        'id': { in: _aObjectIDsToSearch }
+				    }
+				})
+				.then( function(){
+					//var _oSurroundings = oAncillaEvent.oRows;
+					//_Ancilla.__cacheSurroundings( _oSurroundings )
+console.error( 'TODO: cache query results: %o', arguments );
+					return _Ancilla.__getObjByIDFromCache( _aIDs );
+				})
+				.catch( function( oError ){
+					_Ancilla.error( '[Error "%o"] failed to load objects "%o" from server', oError, _aIDs );
+					throw oError ;
+				})
+			;
 		}
 		return _oLoadPromise;
 	}
-*/
+
+	/**
+	* Method used to check if an object is loaded completly
+	*
+	* @method    __getObjIDsNotLoaded
+	* @private
+	*
+	* @param	{Array}		aIDs				The object's IDs to check
+	*
+	* @return	{Array}		it returns the IDs not loaded
+	*
+	* @example
+	*   Ancilla.__getObjIDsNotLoaded( [ 1, 2, 3 ] );
+	*/
+	__getObjIDsNotLoaded( aIDs ){
+		let _aObjectIDsToSearch = [];
+		for( let _iIndex=0; _iIndex < aIDs.length; _iIndex++ ){
+			let _iCurrentID = aIDs[ _iIndex ];
+			let _oCurrentObj = this.__getObjByIDFromCache( _iCurrentID );
+			if( !_oCurrentObj ){
+				_aObjectIDsToSearch.push( _iCurrentID );
+			}
+		}
+		return _aObjectIDsToSearch;
+	}
+
+	__getObjByIDFromCache( iID ){
+		let _oObj = this.__oMemoryCache.oObjs[ iID ];
+		if( !_oObj ){
+			this.warn('Unable to access object with ID %o from the caches...', iID );
+		}
+		return _oObj;
+	}
+
 	/**
 	 * Method used load an object into the library
 	 *
@@ -576,32 +597,7 @@ console.error( 'Breeze: ', breeze );
 		}
 	}
 */
-	/**
-	* Method used to check if an object is loaded completly
-	*
-	* @method    __objIDsNotLoaded
-	* @private
-	*
-	* @param	{Array}		aIDs				The object's IDs to check
-	*
-	* @return	{Array}		it returns the IDs not loaded
-	*
-	* @example
-	*   Ancilla.__objIDsNotLoaded( [ 1, 2, 3 ] );
-	*/
-/*
-	__objIDsNotLoaded( aIDs ){
-		var _aObjectIDsToSearch = [];
-		for( var _iIndex in aIDs ){
-			var _iCurrentID = aIDs[ _iIndex ];
-			var _oCurrentObj = this.getObj( _iCurrentID );
-			if( !_oCurrentObj || !this.__oMemoryCache.oLoadedSurroundingsByID[ _iCurrentID ] ){
-				_aObjectIDsToSearch.push( _iCurrentID );
-			}
-		}
-		return _aObjectIDsToSearch;
-	}
-*/
+
 	/**
 	* Method used to check if an object's type is loaded completly
 	*
@@ -860,22 +856,6 @@ console.error( 'Breeze: ', breeze );
 		}
 	}
 */
-	/**
-	 * Method used get an object from the library
-	 *
-	 * @method    getObj
-	 * @public
-	 *
-	 * @param	{Number}		iID				The ID of the object
-	 *
-	 * @return	{Object}	returns the requested object; null if not present
-	 *
-	 * @example
-	 *   Ancilla.getObj( 1 );
-	 */
-	getObj( iID ){
-		return this.__oMemoryCache.oObjs[ iID ];
-	}
 	/**
 	 * Method used get a relation from the library
 	 *

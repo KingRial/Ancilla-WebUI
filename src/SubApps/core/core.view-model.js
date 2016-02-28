@@ -34,9 +34,9 @@ export class CoreViewModel {
 	}
 
 	/**
-	* Method used by the view to load an Ancilla object
+	* Method used by the view to get an Ancilla object
 	*
-	* @method    loadObj
+	* @method    getObj
 	* @public
 	*
 	* @param     {Number/String}		IDsOrTypes		The object's ID or type
@@ -44,12 +44,9 @@ export class CoreViewModel {
 	* @return	{Promise}		The promise is successfull when the object has been loaded
 	*
 	*/
-	/*
-	loadObj( IDsOrTypes ){
-		//var _View = this;
-		return Ancilla.loadObj( IDsOrTypes );
+	getObj( IDsOrTypes ){
+		return Ancilla.getObj( IDsOrTypes );
 	}
-	*/
 
 	/*
 	onEnterPressed( oEvent ){

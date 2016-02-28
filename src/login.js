@@ -13,7 +13,6 @@ export class Login extends CoreViewModel{
   }
 
   activate( oParams, oRouteConfig){
-console.error( 'TEST: ', arguments );
     if( oRouteConfig.route === 'logout' ){
       let _View = this;
       Ancilla

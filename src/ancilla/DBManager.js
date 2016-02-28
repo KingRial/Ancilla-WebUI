@@ -17,12 +17,13 @@ export default class DBManager extends CoreLibrary {
     this.debug( 'Using base URL "%o" to communicate with the server.', this.__sBaseURL );
     this.__oDB = new breeze.EntityManager( this.__sBaseURL );
 // TODO: using fetch library in the Authenticator class, instead of the current AJAX adapter
-    breeze.config.initializeAdapterInstance("modelLibrary", "backingStore");
+    breeze.config.initializeAdapterInstance( 'uriBuilder', 'json' );
+    breeze.config.initializeAdapterInstance( 'modelLibrary', 'backingStore' );
   }
 
 
-  getEntityQuery(){
-    return new breeze.EntityQuery();
+  getEntityQuery( oJSONQuery ){
+    return new breeze.EntityQuery( oJSONQuery );
   }
 
   updateAccessToken(){
@@ -56,16 +57,17 @@ export default class DBManager extends CoreLibrary {
     ;
   }
 
-  query( oEntitQuery ){
+//SEE http://breeze.github.io/doc-js/query-using-json.html
+  query( oJSONQuery ){
     let _DBManager = this;
-    _DBManager.debug( 'Executing query: %o ...', oEntitQuery );
+    _DBManager.debug( 'Executing query: %o ...', JSON.stringify( oJSONQuery ) );
 // TODO handle execute locally for future DB caching
-    return this.handleRequest( () =>this.__oDB.executeQuery( oEntitQuery ) )
+    return this.handleRequest( () =>this.__oDB.executeQuery(  this.getEntityQuery( oJSONQuery )  ) )
       .then(  function(){
         console.error( 'Query OK: ', arguments );
       })
       .catch( function( oError ){
-        _DBManager.error( 'Failed query: %o with error: %o', oEntitQuery, oError );
+        _DBManager.error( 'Failed query: %o with error: %o', oJSONQuery, oError );
       })
     ;
   }

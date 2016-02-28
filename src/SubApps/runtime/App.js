@@ -10,7 +10,7 @@ export class App extends CoreViewModel {
 	configureRouter(config, router){
 		config.title = Ancilla.getConstant( '_LANG_MENU' );
 		config.map([
-			{ route: '', moduleId: './homepage',	nav: false, title: Ancilla.getConstant('_LANG_HOMEPAGE') },
+			{ route: [ '', 'homepage' ], moduleId: './homepage',	nav: false, title: Ancilla.getConstant('_LANG_HOMEPAGE') },
 			{ route: 'grid/:id/', moduleId: './grid', nav: false, title: Ancilla.getConstant('_LANG_GRID') }
 		]);
     this.oRouter = router;

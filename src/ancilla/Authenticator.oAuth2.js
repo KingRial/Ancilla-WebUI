@@ -36,7 +36,7 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
   }
 
   getAccessToken(){
-    return ( this.__oToken.sAccessToken ? Promise.resolve( this.__oToken.sAccessToke ) : this._oAuthStore.getItem( 'sAccessToken' ) );
+    return ( this.__oToken.sAccessToken ? Promise.resolve( this.__oToken.sAccessToken ) : this._oAuthStore.getItem( 'sAccessToken' ) );
   }
 
   getRefreshToken(){
@@ -266,7 +266,11 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
         _Authenticator.debug( 'Request failed ( %o ); trying to get a refreshed access token...', oError );
         return _Authenticator.refreshToken( oError )
           .then( function(){
-            return fRequest();
+            return fRequest()
+              .catch( function( oError ){
+                _Authenticator.error( 'Failed request with error: %o', oError );
+              })
+            ;
           })
           .catch( function( oError ){
             _Authenticator.error( 'Failed to get a refreshed access token ( %o ); logging out application...', oError );

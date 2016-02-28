@@ -1,5 +1,9 @@
 <template>
-	<div class="valign-wrapper">
-    <h5 class="valign center">Filler for runtime homepage</h5>
-  </div>
+	<div repeat.for="oEnvironemnt of aEnvironments" class="center-align" >
+			TEST: ${oEnvironment.name}
+	</div>
+	<div class="center-align">
+		<h1>${getConstant('_LANG_LOADING')}</h1>
+		<i class="fa fa-circle-o-notch fa-spin fa-5x"></i>
+	</div>
 </template>
