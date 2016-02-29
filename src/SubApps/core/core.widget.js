@@ -1,44 +1,49 @@
-import {inject,ObserverLocator} from 'aurelia-framework'
+/**
+ * A class to describe a generic Widget
+ *
+ * @class	CoreWidget
+ * @public
+ *
+ * @return	{Void}
+ *
+ * @example
+ *  <compose
+ *    model.bind="oObj"
+ *    view-model="./widgets/${oObj.getWidget().getModel()}">
+ *  </compose>
+ * or:
+ *  <compose
+ *    model.bind="[oObj,'Current-View']"
+ *    view-model="./widgets/${oObj.getWidget().getModel()}">
+ *  </compose>
+ */
+
 import {CoreViewModel} from '../core/core.view-model'
 
-@inject( ObserverLocator )
 export class CoreWidget extends CoreViewModel{
 
-  __oObserverLocator = null;
-  __fDispatchSubscription = null;
-
-  oObj = null;
-  oWidget = null;
-  hasOptions = false;
-  oOptions = null;
-  oCurrentOptions = null;
-
-  constructor( oObserverLocator ) {
+  constructor(){
     super();
-    this.__oObserverLocator = oObserverLocator;
+    this.oObj = null;
+    this.oWidget = null;
+    this.hasOptions = false;
+    this.oOptions = null;
+    this.oCurrentOptions = null;
   }
 
-	//Binded module from compose is passed as first argument of the activate
-  activate( oParams, oQueryString, oRouteConfig ){
-    //this.sView = oParams[1] || 'grid'; // TODO: it can be taken from the current URL ( Example: runtime/plan )
-    this.oObj = oParams;
+  activate( oOptions ){
+    oOptions = ( Array.isArray( oOptions ) ? oOptions : [ oOptions ] );
+    this.oObj = oOptions[ 0 ];
+    this.sView = oOptions[ 1 ];
     this.oWidget = this.oObj.getWidget();
     this.hasOptions = this.oWidget.hasOptions();
     if( this.hasOptions ){
       this.oOptions = this.oWidget.getOptions();
       this.__updateCurrentOption( this.oObj.getValue() );
-      this.__fDispatchSubscription = this.__oObserverLocator
-         .getObserver( this.oObj, 'value' )
-         .subscribe( ( newValue, oldValue ) => this.__updateCurrentOption( newValue, oldValue ) )
-      ;
     }
   }
 
-  deactivate(){
-    this.__fDispatchSubscription();
-  }
-
-  __updateCurrentOption( newValue, oldValue ){
+  __updateCurrentOption( newValue ){
     this.oCurrentOptions = this.oWidget.getOption( newValue );
   }
 

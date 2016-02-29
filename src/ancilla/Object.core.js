@@ -38,22 +38,24 @@ export class ObjectCore{
    */
   __fillByOptions( oArray ){
   	if( oArray ){
-  		for( var _sField in oArray ){
+  		for( let _sField in oArray ){
         if( oArray.hasOwnProperty( _sField ) ){
-          var _sCurrentField = _sField.toLowerCase();
-          switch( _sCurrentField ){
+          let value = oArray[ _sField ];
+          switch( _sField.toLowerCase() ){
             case 'name':
-            this[ _sCurrentField ] = Ancilla.getConstant( oArray[ _sField ] );
+            this[ _sField ] = Ancilla.getConstant( value );
             break;
             case 'options':
-              try{
-                this[ _sCurrentField ] = JSON.parse( oArray[ _sField ] );
-              } catch( e ){
-                this.error( '[ Error: %o ] Unable to parse correctly "option" field during object initialization', e );
+              if( value ){ // Otherwise JSON.parse will crash
+                try{
+                  this[ _sField ] = JSON.parse( value );
+                } catch( e ){
+                  this.error( '[ Error: %o ] Unable to parse correctly "option" field %o during object initialization', e, value );
+                }
               }
               break;
             default:
-              this[ _sCurrentField ] = oArray[ _sField ];
+              this[ _sField ] = value;
               break;
           }
         }
@@ -80,7 +82,8 @@ export class ObjectCore{
   setValue( value ){
     this.update({ value: value});
   }
-
+  
+  /*
 //TODO: add filter option
   getParents(){
     return Ancilla.getObjsByChild( this.id );
@@ -90,6 +93,7 @@ export class ObjectCore{
   getChildren(){
     return Ancilla.getObjsByParent( this.id );
   }
+  */
 
   /**
    * Method used to return the object's widget
@@ -103,7 +107,7 @@ export class ObjectCore{
    *   Object.getWidget();
    */
   getWidget(){
-    return Ancilla.getWidget( this.widget_id );
+    return Ancilla.getWidget( this.widgetID, { bFromCache: true } );
   }
 
   /**
@@ -121,10 +125,10 @@ export class ObjectCore{
    */
   update( oFieldsWithNewValues ){
     // Remembering previous value for each field
-    var _oFieldsWithOldValues = {};
-    for( var _sField in oFieldsWithNewValues ){
+    let _oFieldsWithOldValues = {};
+    for( let _sField in oFieldsWithNewValues ){
       if( oFieldsWithNewValues.hasOwnProperty( _sField ) ){
-        var newValue = oFieldsWithNewValues[ _sField ];
+        let newValue = oFieldsWithNewValues[ _sField ];
         _oFieldsWithOldValues[ _sField ] = this[ _sField ];
         // Updating field over object
         this[ _sField ] = newValue;
@@ -133,14 +137,14 @@ export class ObjectCore{
     // Adding Object's ID ( overwriting previous one if present; the ID must not change )
     oFieldsWithNewValues.id = this.getID();
     // Sending update trigger over server
-    var _Object = this;
+    let _Object = this;
     Ancilla.trigger( { sType: Constant._EVENT_TYPE_UPDATE, aObjs: [ oFieldsWithNewValues ] } )
       .catch( function( oError ){
         _Object.error('[ Error: %o] Unable to set values: %o; restoring previous values: %o...', oError, oFieldsWithNewValues, _oFieldsWithOldValues );
         // Restoring previous values
-        for( var _sField in _oFieldsWithOldValues ){
+        for( let _sField in _oFieldsWithOldValues ){
           if( _oFieldsWithOldValues.hasOwnProperty( _sField ) ){
-            var oldValue = _oFieldsWithOldValues[ _sField ];
+            let oldValue = _oFieldsWithOldValues[ _sField ];
             this[ _sField ] = oldValue;
           }
         }

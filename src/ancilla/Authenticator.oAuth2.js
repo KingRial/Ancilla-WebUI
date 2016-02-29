@@ -276,7 +276,7 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     let _Authenticator = this;
     return fRequest()
       .catch( function( oError ){
-        _Authenticator.debug( 'Request failed ( %o ); trying to get a refreshed access token...', oError );
+        _Authenticator.warn( 'Request failed ( %o ); trying to get a refreshed access token...', oError );
         return _Authenticator.refreshToken( oError )
           .then( function(){
             return fRequest()

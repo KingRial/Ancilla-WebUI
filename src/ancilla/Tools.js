@@ -248,23 +248,15 @@ export class ToolsClass extends CoreLibrary {
     }
   }
 
-  /*
   import( aLibsToImport ){
-    var _Tools = this;
-    var _aImportPromises = [];
+    let _Tools = this;
+    let _aImportPromises = [];
     _Tools.debug( 'loading libraries: %o', aLibsToImport );
-    for( var _iIndex=0; _iIndex<aLibsToImport.length; _iIndex++ ){
-        var _oPromiseToLoad = System.import( aLibsToImport[ _iIndex ] );
-        _oPromiseToLoad
-          .catch( function( oError ){
-            _Tools.error( '[ Error ] %o', oError );
-          })
-        ;
-        _aImportPromises.push( _oPromiseToLoad );
-    }
+    aLibsToImport.forEach( function( sLibrary ){
+      _aImportPromises.push( System.import( sLibrary ) );
+    });
     return Promise.all( _aImportPromises );
   }
-  */
 
   /*
   hex2RGB( sHex ){

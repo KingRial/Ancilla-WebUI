@@ -1,9 +1,18 @@
 <template>
-	<div repeat.for="oEnvironemnt of aEnvironments" class="center-align" >
-			TEST: ${oEnvironment.name}
-	</div>
-	<div class="center-align">
-		<h1>${getConstant('_LANG_LOADING')}</h1>
-		<i class="fa fa-circle-o-notch fa-spin fa-5x"></i>
+	<div class="container">
+		<div class="row">
+	    <div class="col-md-12 text-center">
+				<div repeat.for="oEnvironment of aEnvironments" >
+					<compose
+					  model.bind="[oEnvironment,'homepage']"
+					  view-model="./widgets/${oEnvironment.getWidget().getModel()}">
+					</compose>
+				</div>
+				<div show.bind="bLoading">
+					<h1>${getConstant('_LANG_LOADING')}</h1>
+					<i class="fa fa-circle-o-notch fa-spin fa-5x"></i>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>

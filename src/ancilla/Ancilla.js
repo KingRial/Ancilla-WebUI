@@ -6,9 +6,8 @@ import { default as DBManager } from 'ancilla:DBManager';
 import {Websocket} from 'ancilla:Websocket';
 import {WidgetCore} from 'ancilla:Widget.core';
 import {ObjectUser} from 'ancilla:Object.user';
-//import { default as Forge} from 'forge';
 //import 'bluebird'; // TODO: should I use bluebird ? it gives warnings with aurelia
-// TODO:: dynamic languages
+// TODO: dynamic languages
 import { default as Language } from 'languages:english';
 
 /**
@@ -32,23 +31,20 @@ class AncillaClass extends CoreLibrary {
 		}, oOptions );
 		// Calling Super Constructor
 		super( oOptions );
-		// Remebring Options
+		// Remebering Options
 		this.__oOptions = oOptions;
 		this.__oLanguageConstants = Language;
+		// Ancilla Status
+		this.__oStatus = {
+			bIsConnected: false
+		};
 		this.__oMemoryCache = {
 			oObjs: {},											// Caching loaded objects by IDs
-			oObjsByParents: {},							// Caching acces objects by parents IDs
-			oObjsByChildren: {},						// Caching acces objects by children IDs
 			oRelations: {},									// Caching loaded relations by IDs
 			oWidgets: {											// Caching loaded widgets by IDs
 				'-1': new WidgetCore({ id: -1, name: '_LANG_NULL_WIDGET' })
 			},
-			oLoadedSurroundingsByID: {},		// Caching loaded surroundings by object's IDs
-			oLoadedSurroundingsByType: {},	// Caching loaded surroundings by object's types
-		};
-		// Ancilla Status
-		this.__oStatus = {
-			bIsConnected: false
+			oLoadedSurroundingsByID: {}		// Caching loaded surroundings by object's IDs
 		};
 		// Ancilla Messages
 		this.oMessages = {
@@ -168,42 +164,6 @@ class AncillaClass extends CoreLibrary {
 	logOut(){
 		return this.__oAuth.logOut();
 	}
-
-	/**
-	 * Method used to obtain a web unique ID ( UID )
-	 *
-	 * @method    getUID
-	 * @public
-	 *
-	 *
-	 * @return	{String}	returns a web unique ID ( UID )
-	 *
-	 * @example
-	 *   Ancilla.getUUID();
-	 */
-	/*
-	getUUID(){
-		if( !this._sUUID ){
-//TODO: handle localstorage with a custom lib
-//TODO: handle mobile UID
-			var _sUUID = ( localStorage ? localStorage.getItem( 'UID' ) : null );
-			if( !_sUUID ){
-				//var _sDate = ( new Date() ).valueOf().toString();
-				//var _sRandom = Math.random().toString();
-				// Using Forge Lib to generate a random sessiond ID ( https://github.com/digitalbazaar/forge )
-				// We are not using the SESSIOND ID in the Cookies since we are planning to evade to use PHP or similar
-				//_sUUID = 'web-' + Forge.md.sha1.create().update( _sDate + _sRandom ).digest().toHex();
-//TODO: create UUID
-				_sUUID = 'fake-UUID';
-				this.info( 'creating missing UID: "%o"', _sUUID );
-				localStorage.setItem( 'UID', _sUUID );
-			}
-			this._sUUID = _sUUID;
-		}
-		this.info( 'using UID: "%o"', this._sUUID );
-		return this._sUUID;
-	}
-	*/
 
 	getStatus( sStatus ){
 		return ( sStatus ? this.__oStatus[ sStatus ] : this.__oStatus );
@@ -358,578 +318,169 @@ class AncillaClass extends CoreLibrary {
 	 * @method	getObj
 	 * @private
 	 *
-	 * @param		{Number/String/Array}		toLoad	An object's ID, an object's type, an array of object's IDs or an array of object's types
+	 * @param		{Number/String/Array}		item	An object's ID, an array of object's IDs or JSON where predicate
 	 *
 	 * @return	{Promise}	returns a Promise successfull when object has been loaded or failed when an error occurs
 	 *
 	 * @example
 	 *	Ancilla.getObj( 1 );
-	 *	Ancilla.getObj( [ 1, 2, 3, 4 ] );
-	 *  Ancilla.getObj( 'GROUP' );
-	 *  Ancilla.getObj( [ 'GROUP', 'USER' ] );
+	 *  Ancilla.getObj( { id: 1 } );
 	 */
-	getObj( toLoad ){
-		toLoad = ( Array.isArray( toLoad ) ? toLoad : [ toLoad ] );
-		let _bLoadByID = ( isNaN( toLoad[ 0 ] ) ? false : true );
-		let _bLoadByType = ( isNaN( toLoad[ 0 ] ) ? true : false );
-		if( _bLoadByID ){
-			return this.__getObjByID( toLoad );
-		} else if( _bLoadByType ) {
-			return this.__getObjByType( toLoad );
-		} else {
-			this.error('unable to understand how to load objects; please check the parameters.');
-		}
-	}
-	/**
-	 * Method used load an object into the library
-	 *
-	 * @method    __getObjByID
-	 * @private
-	 *
-	 * @param		{Number/Array}		ids				An ID of the object table or an array of IDs
-	 *
-	 * @return	{Promise}	returns a Promise successfull when object has been loaded or failed when an error occurs
-	 *
-	 * @example
-	 *   Ancilla.__getObjByID( 1 );
-	 */
-	__getObjByID( ids ){
-		let _oLoadPromise = null;
+	getObj( item, oOptions ){
+		oOptions = Object.assign({
+			bFromCache: false
+		}, oOptions );
 		let _Ancilla = this;
-		let _bIDsIsArray = Array.isArray( ids );
-		let _aIDs = ( _bIDsIsArray ? ids : [ ids ] );
-		let _aObjectIDsToSearch = this.__getObjIDsNotLoaded( ids );
-		if( _aObjectIDsToSearch.length === 0 ){
-			this.debug( '[__loadObjByID] nothing to load from server' );
-			_oLoadPromise = Promise.resolve( this.__getObjByIDFromCache( ids ) );
+		if( oOptions.bFromCache ){
+			return _Ancilla.__geEntityCache( 'oObjs', item );
 		} else {
-			this.debug( '[__loadObjByID] object\'s IDs to load from server: "%o"', _aObjectIDsToSearch );
-			return this.query({
-				    from: 'OBJECT',
-				    where: {
-							'id': { in: _aObjectIDsToSearch }
-				    }
+			return this.__getEntity( 'OBJECT', item )
+				.then( function( aQueryResults ){
+					return _Ancilla.__createEntity( 'Object', 'oObjs', aQueryResults, oOptions );
 				})
-				.then( function(){
-					//var _oSurroundings = oAncillaEvent.oRows;
-					//_Ancilla.__cacheSurroundings( _oSurroundings )
-console.error( 'TODO: cache query results: %o', arguments );
-					//return _Ancilla.__getObjByIDFromCache( _aIDs );
-				})
-				.catch( function( oError ){
-					_Ancilla.error( '[Error "%o"] failed to load objects "%o" from server', oError, _aIDs );
-					throw oError ;
+				// Collecting surroundings for the current obtained objects, if needed
+				.then( function( getObjResult ){
+					let _aSurroundingIDsToLoad = [];
+					let _aWidgetsIDsToLoad = [];
+					let _aObjs = ( Array.isArray( getObjResult ) ? getObjResult : [ getObjResult ] );
+					// Checking object's surrounding flag
+					_aObjs.forEach( function( oObj ){
+						if( !_Ancilla.__geEntityCache( 'oLoadedSurroundingsByID', oObj.id ) ){
+							if( _aSurroundingIDsToLoad.indexOf( oObj.id )===-1 ){
+								_aSurroundingIDsToLoad.push( oObj.id );
+							}
+							if( _aWidgetsIDsToLoad.indexOf( oObj.widgetID )===-1 ){
+								_aWidgetsIDsToLoad.push( oObj.widgetID );
+							}
+						}
+					});
+					// Loading surrounding if needed
+					if( _aSurroundingIDsToLoad.length > 0 ){
+						return _Ancilla.getRelation({
+							or: [
+								{ parentID: { in: _aSurroundingIDsToLoad } },
+								{ childID: { in: _aSurroundingIDsToLoad } }
+							]
+						})
+							.then( function(){
+								return _Ancilla.getWidget({
+									id: { in: _aWidgetsIDsToLoad }
+								})
+								.then( function(){
+									// Remembring object's surrounding flag
+									_aSurroundingIDsToLoad.forEach( function( iID ){
+										_Ancilla.__seEntityCache( 'oLoadedSurroundingsByID', iID, true );
+									});
+									return getObjResult;
+								});
+							})
+						;
+					} else {
+						return getObjResult;
+					}
 				})
 			;
 		}
-		return _oLoadPromise;
 	}
 
-	/**
-	* Method used to check if an object is loaded completly
-	*
-	* @method    __getObjIDsNotLoaded
-	* @private
-	*
-	* @param	{Array}		aIDs				The object's IDs to check
-	*
-	* @return	{Array}		it returns the IDs not loaded
-	*
-	* @example
-	*   Ancilla.__getObjIDsNotLoaded( [ 1, 2, 3 ] );
-	*/
-	__getObjIDsNotLoaded( aIDs ){
-		let _aObjectIDsToSearch = [];
-		for( let _iIndex=0; _iIndex < aIDs.length; _iIndex++ ){
-			let _iCurrentID = aIDs[ _iIndex ];
-			let _oCurrentObj = this.__getObjByIDFromCache( _iCurrentID );
-			if( !_oCurrentObj ){
-				_aObjectIDsToSearch.push( _iCurrentID );
-			}
-		}
-		return _aObjectIDsToSearch;
-	}
-
-	__getObjByIDFromCache( iID ){
-		let _oObj = this.__oMemoryCache.oObjs[ iID ];
-		if( !_oObj ){
-			this.warn('Unable to access object with ID %o from the caches...', iID );
-		}
-		return _oObj;
-	}
-
-	/**
-	 * Method used load an object into the library
-	 *
-	 * @method    __loadObjByType
-	 * @private
-	 *
-	 * @param		{String/Array}		types				A type of the object table or an array of types
-	 *
-	 * @return	{Promise}	returns a Promise rejects when an error occurs or success with an array of loaded IDs as first parameter
-	 *
-	 * @example
-	 *   Ancilla.__loadObjByType( 'GROUP' );
-	 */
-	 /*
-	__loadObjByType( types ){
-			var _oLoadPromise = null;
-			var _Ancilla = this;
-			types = ( Array.isArray( types ) ? types : [ types ] );
-			var _aObjectTypesToSearch = this.__objTypesNotLoaded( types );
-			if( _aObjectTypesToSearch.length === 0 ){
-				this.debug( '[__loadObjByType] nothing to load' );
-				// Returning promise with array of already loaded IDs
-				var _aIDsByType = [];
-				for( var _iIndex in types ){
-					_aIDsByType = _aIDsByType.concat( this.__oMemoryCache.oLoadedSurroundingsByType[ types[ _iIndex ] ] );
-				}
-				_oLoadPromise = Promise.resolve( _aIDsByType );
-			} else {
-				this.debug( '[__loadObjByType] object\'s types to load from server: "%o"', _aObjectTypesToSearch );
-				_oLoadPromise = new Promise( function( fResolve, fReject ){
-					_Ancilla
-						.trigger({ sType: Constant._EVENT_TYPE_OBJ_LOAD_BY_TYPE, types: _aObjectTypesToSearch })
-						.then( function( oAncillaEvent ){
-							var _oSurroundings = oAncillaEvent.oRows;
-							_Ancilla.__cacheSurroundings( _oSurroundings )
-								.then( function(){
-									// Remembering the object types which have surrounding loaded
-									_Ancilla.__setLoadedSurrouding( types, _oSurroundings.aLoadedSurroundings );
-									fResolve( _oSurroundings.aLoadedSurroundings );
-								})
-								.catch(function( oError ){
-									fReject( oError );
-								})
-							;
-						})
-						.catch( function( oError ){
-							_Ancilla.error( '[__loadObjByType][Error "%o"] failed to load objects "%o"', oError, types );
-							fReject( oError );
-						})
-					;
-				});
-			}
-			return _oLoadPromise;
-	}
-*/
-	/**
-	 * Method used remember what objects have their surrounding already loaded
-	 *
-	 * @method    __setLoadedSurrouding
-	 * @private
-	 *
-	 * @param		{Number/String/Array}		toRemember	An object's ID, an object's type, an array of object's IDs or an array of object's types
-	* @param		{Array}									[aIDs]			Loaded IDs, by type
-	 *
-	 * @example
-	 *   Ancilla.__setLoadedSurrouding( 1 );
-	 *   Ancilla.__setLoadedSurrouding( [ 1 , 2 ] );
-	 *   Ancilla.__setLoadedSurrouding( 'GROUP' );
-	 *   Ancilla.__setLoadedSurrouding( [ 'GROUP', 'TECHNOLOGY' ] );
-	 */
-/*
-	__setLoadedSurrouding( toRemember, aIDs ){
-		toRemember = ( Array.isArray( toRemember ) ? toRemember : [ toRemember ] );
-		var _bRememberByID = ( isNaN( toRemember[ 0 ] ) ? false : true );
-		var _bRememberByType = ( isNaN( toRemember[ 0 ] ) ? true : false );
-		if( _bRememberByID ){
-			this.__setLoadedSurroundingByID( toRemember );
-		} else if( _bRememberByType ) {
-			this.__setLoadedSurroundingByType( toRemember, aIDs );
+	getRelation( item, oOptions ){
+		oOptions = Object.assign({
+			bFromCache: false
+		}, oOptions );
+		let _Ancilla = this;
+		if( oOptions.bFromCache ){
+			return _Ancilla.__geEntityCache( 'oRelations', item );
 		} else {
-			this.error('unable to understand how to remember objects; please check the parameters.');
+			return this.__getEntity( 'RELATION', item )
+				.then( function( aQueryResults ){
+					return _Ancilla.__createEntity( 'Relation', 'oRelations', aQueryResults, oOptions );
+				})
+			;
 		}
-	}
-*/
- /**
-	* Method used to remeber what objects have their surrounding already loaded by their IDs
-	*
-	* @method    __setLoadedSurroundingByID
-	* @private
-	*
-	* @param		{Array}		aIDs	An array of object's IDs to remember
-	*
-	* @example
-	*   Ancilla.__setLoadedSurroundingByID( 1 );
-	*/
-	/*
-	__setLoadedSurroundingByID( aIDs ){
-		this.debug('loaded object\'s surroundings by IDs: "%o"', aIDs);
-		for( var _iIndex in aIDs ){
-			var iID = aIDs[ _iIndex ];
-			if( !this.__oMemoryCache.oLoadedSurroundingsByID[ iID ] ){
-				this.__oMemoryCache.oLoadedSurroundingsByID[ iID ] = true;
-			} else {
-				this.error( 'object (%o) surrounding already loaded; please check why it happens.', iID );
-			}
-		}
-	}
-	*/
- /**
-	* Method used to remeber what objects have their surrounding already loaded by their types
-	*
-	* @method    __setLoadedSurroundingByType
-	* @private
-	*
-	* @param		{Array}		aTypes	An array of object's types to remember
-	* @param		{Array}		aIDs		An array of object's IDs for the current types to remember
-	*
-	* @example
-	*   Ancilla.__setLoadedSurroundingByType( 'GROUP' );
-	*/
-/*
-	__setLoadedSurroundingByType( aTypes, aIDs ){
-		this.debug('loaded object\'s surroundings by types: "%o"', aTypes);
-		for( var _iIndex in aTypes ){
-			var sType = aTypes[ _iIndex ];
-			if( !this.__oMemoryCache.oLoadedSurroundingsByType[ sType ] ){
-				this.__oMemoryCache.oLoadedSurroundingsByType[ sType ] = [];
-				for( var _iIndex in aIDs ){
-					var _iCurrentID = aIDs[ _iIndex ];
-					if( this.getObj( _iCurrentID ).getType() == sType ){
-						this.__oMemoryCache.oLoadedSurroundingsByType[ sType ].push( _iCurrentID );
-					}
-				}
-			} else {
-				this.error( 'object (%o) surrounding already loaded; please check why it happens.', sType );
-			}
-		}
-	}
-*/
-
-	/**
-	* Method used to check if an object's type is loaded completly
-	*
-	* @method    __objTypesNotLoaded
-	* @private
-	*
-	* @param	{Array}		aTypes				The object's IDs to check
-	*
-	* @return	{Array}		it returns the object's types not loaded
-	*
-	* @example
-	*   Ancilla.__objTypesNotLoaded( [ 'GROUP', 'TECHNOLOGY' ] );
-	*/
-/*
-	__objTypesNotLoaded( aTypes ){
-		var _aObjectTypesToSearch = [];
-		for( var _iIndex in aTypes ){
-			var _sCurrentType = aTypes[ _iIndex ];
-			if( !this.__oMemoryCache.oLoadedSurroundingsByType[ _sCurrentType ] ){
-				_aObjectTypesToSearch.push( _sCurrentType );
-			}
-		}
-		return _aObjectTypesToSearch;
-	}
-*/
-	/**
-	 * Method used cache object's surroundings
-	 *
-	 * @method    __cacheSurroundings
-	 * @private
-	 *
-   * @param		{Object}	oSurrounding				The objects describing a surrounding of particular ids
-	 *
-	 * @return	{Void}
-	 *
-	 * @example
-	 *   Ancilla.__cacheSurroundings( { surrounding } );
-	 */
-/*
-	__cacheSurroundings( oSurrounding ){
-		var _Ancilla = this;
-		return new Promise( function( fResolve, fReject ){
-			if( oSurrounding && ( oSurrounding.aObjs || oSurrounding.aRelations || oSurrounding.oWidgets ) ){
-				var _aObjs = oSurrounding.aObjs;
-				var _aRelations = oSurrounding.aRelations;
-				var _oWidgets = oSurrounding.oWidgets;
-				// Dinamically importing needed Classes
-				var _aLibsToImport = [];
-				for( var _iIndex in _aObjs ){
-					var _aRow = _aObjs[ _iIndex ];
-					var _sDependency = 'ancilla:Object.' + _aRow[ 'TYPE' ].toLowerCase();
-					if( _aLibsToImport.indexOf( _sDependency ) == -1 ){
-						_aLibsToImport.push( _sDependency );
-					}
-				}
-				for( var _iIndex in _aRelations ){
-					var _aRow = _aRelations[ _iIndex ];
-					var _sDependency = 'ancilla:Relation.' + _aRow[ 'TYPE' ].toLowerCase();
-					if( _aLibsToImport.indexOf( _sDependency ) == -1 ){
-						_aLibsToImport.push( _sDependency );
-					}
-				}
-				for( var _iIndex in _oWidgets ){
-//TODO: libreria dinamica ?
-					var _sDependency = 'ancilla:Widget.core';
-					if( _aLibsToImport.indexOf( _sDependency ) == -1 ){
-						_aLibsToImport.push( _sDependency );
-					}
-				}
-				Tools.import( _aLibsToImport )
-					.then( function( aClasses ){
-						// Creating OBJECTS
-						var _aLoadedObjs = [];
-						var _aLoadedIDs = [];
-						for( var _iIndex in _aObjs ){
-							var _aCurrentRow = _aObjs[ _iIndex ];
-							var _sType = _aCurrentRow[ 'TYPE' ].toLowerCase();
-							var _sClass = 'Object' + _sType.charAt(0).toUpperCase() + _sType.slice(1);
-							var fClass = null;
-							// Looking for dynamic class
-							var _bFound = false;
-							for( var _iIndex in aClasses ){
-								var _oCurrentLibClass = aClasses[ _iIndex ];
-								if( _oCurrentLibClass[ _sClass ] ){
-									fClass = aClasses[ _iIndex ][ _sClass ];
-									_bFound = true;
-									break;
-								}
-							}
-							if( !_bFound ){
-								_Ancilla.error( 'Unable to find object class "%o"', _sClass );
-							}
-							var _oCurrentObj = new fClass( _aCurrentRow );
-							_aLoadedObjs.push( _oCurrentObj );
-							_aLoadedIDs.push( _oCurrentObj.getID() );
-						}
-						// Remembering the objects which have surrounding loaded
-						_Ancilla.__setLoadedSurrouding( oSurrounding.aLoadedSurroundings );
-						_Ancilla.debug( '[__cacheSurroundings] loaded objects "%o"', _aLoadedObjs );
-						// Caching results in memory
-						_Ancilla.__cacheObjects( _aLoadedObjs );
-						// Creating RELATIONS
-						var _aLoadedRelations = [];
-						for( var _iIndex in _aRelations ){
-							var _aCurrentRow = _aRelations[ _iIndex ];
-							var _sType = _aCurrentRow[ 'TYPE' ].toLowerCase();
-							var _sClass = 'Relation' + _sType.charAt(0).toUpperCase() + _sType.slice(1);
-							var fClass = null;
-							// Looking for dynamic class
-							var _bFound = false;
-							for( var _iIndex in aClasses ){
-								var _oCurrentLibClass = aClasses[ _iIndex ];
-								if( _oCurrentLibClass[ _sClass ] ){
-									fClass = aClasses[ _iIndex ][ _sClass ];
-									_bFound = true;
-									break;
-								}
-							}
-							if( !_bFound ){
-								_Ancilla.error( '[__cacheSurroundings] Unable to find relation class "%o"', _sClass );
-							}
-							var _oCurrentRelation = new fClass( _aCurrentRow );
-							_aLoadedRelations.push( _oCurrentRelation );
-						}
-						_Ancilla.debug( '[__cacheSurroundings] loaded relations ""%o"', _aLoadedRelations );
-						// Caching results in memory
-						_Ancilla.__cacheRelations( _aLoadedRelations );
-						// Creating WIDGETS
-						var _aLoadedWidgets = [];
-						for( var _iIndex in _oWidgets ){
-							var _aCurrentRow = _oWidgets[ _iIndex ];
-	//TODO: classe dinamica
-							var _sClass = 'WidgetCore';
-							var fClass = null;
-							// Looking for dynamic class
-							for( var _iIndex in aClasses ){
-								var _oCurrentLibClass = aClasses[ _iIndex ];
-								if( _oCurrentLibClass[ _sClass ] ){
-									fClass = aClasses[ _iIndex ][ _sClass ];
-									break;
-								}
-							}
-							var _oCurrentWidget = new fClass( _aCurrentRow );
-							_aLoadedWidgets.push( _oCurrentWidget );
-						}
-						// Caching results in memory
-						_Ancilla.__cacheWidgets( _aLoadedWidgets );
-						// Resolving operation
-						fResolve();
-					})
-					.catch(function( oError ){
-						_Ancilla.error( '[__cacheSurroundings][Error "%o"] failed to load object class for the following objects: "%o" or relations: "%o" or widget: "%o"', oError, _aObjs, _aRelations, _oWidgets );
-						fReject( oError );
-					})
-				;
-			} else {
-				this.error( '[__cacheSurroundings] missing surrounding to cache');
-			}
-		});
-	}
-*/
-	/**
-	 * Method used cache objects
-	 *
-	 * @method    __cacheObjects
-	 * @private
-	 *
-	 * @param	{Object/Array}		obj				The objects to cache
-	 *
-	 * @return	{Void}
-	 *
-	 * @example
-	 *   Ancilla.__cacheObjects( oObject );
-	 */
-/*
-	__cacheObjects( obj ){
-		var _aLoadedObjs = ( Array.isArray( obj ) ? obj : [ obj ] ) ;
-		for( var _iIndex in _aLoadedObjs ){
-			var _oCurrentObj = _aLoadedObjs[ _iIndex ];
-			// Check cached object
-			if( this.__oMemoryCache.oObjs[ _oCurrentObj.id ] && this.__oMemoryCache.oLoadedSurroundingsByID[ _oCurrentObj.id ] ){
-				this.warn( 'object "%o"(%o) already cached and loaded; ignoring...', _oCurrentObj, _oCurrentObj.id );
-			} else {
-				this.__oMemoryCache.oObjs[ _oCurrentObj.id ] = _oCurrentObj;
-				this.debug( 'cached object "%o"(%o)', _oCurrentObj, _oCurrentObj.id );
-			}
-		}
-	}
-*/
-	/**
-	 * Method used cache relations
-	 *
-	 * @method    __cacheRelations
-	 * @private
-	 *
-	 * @param	{Object/Array}		relation				The relations to cache
-	 *
-	 * @return	{Void}
-	 *
-	 * @example
-	 *   Ancilla.__cacheRelations( oRelation );
-	 */
-/*
-	__cacheRelations( relation ){
-		var _aLoadedRelations = ( Array.isArray( relation ) ? relation : [ relation ] ) ;
-		for( var _iIndex in _aLoadedRelations ){
-			var _oCurrentRelation = _aLoadedRelations[ _iIndex ];
-			// Check cached relation
-			if( typeof this.__oMemoryCache.oRelations[ _oCurrentRelation.id ] == 'undefined' ){
-				// Caching relation
-				this.__oMemoryCache.oRelations[ _oCurrentRelation.id ] = _oCurrentRelation;
-				// Caching access objects by parents
-				var _oMatrixByParent = this.getObjsByParent( _oCurrentRelation.parent_id  );
-				var _oChildObj = this.getObj( _oCurrentRelation.child_id );
-				if( _oChildObj ){
-					_oMatrixByParent.push( _oChildObj );
-				}
-				// Caching access objects by children
-				var _oMatrixByChild = this.getObjsByChild( _oCurrentRelation.child_id  );
-				var _oParentObj = this.getObj( _oCurrentRelation.parent_id );
-				if( _oParentObj ){
-					_oMatrixByChild.push( _oParentObj );
-				}
-				this.debug( 'cached relation ""%o"(%o)', _oCurrentRelation, _oCurrentRelation.id );
-			} else {
-				this.warn( 'relation "%o"(%o) already cached; ignoring...', _oCurrentRelation, _oCurrentRelation.id );
-			}
-		}
-	}
-*/
-	/**
-	 * Method used cache wdiget
-	 *
-	 * @method    __cacheWidgets
-	 * @private
-	 *
-	 * @param	{Object/Array}		widget				The widget to cache
-	 *
-	 * @return	{Void}
-	 *
-	 * @example
-	 *   Ancilla.__cacheWidgets( oWidget );
-	 */
-/*
-	__cacheWidgets( widget ){
-		var _aLoadedWidgets = ( Array.isArray( widget ) ? widget : [ widget ] ) ;
-		for( var _iIndex in _aLoadedWidgets ){
-			var _oCurrentWidget = _aLoadedWidgets[ _iIndex ];
-			// Check cached object
-			if( this.__oMemoryCache.oWidgets[ _oCurrentWidget.id ] ){
-				this.warn( 'widget "%o"(%o) already cached and loaded; ignoring...', _oCurrentWidget, _oCurrentWidget.id );
-			} else {
-				this.__oMemoryCache.oWidgets[ _oCurrentWidget.id ] = _oCurrentWidget;
-				this.debug( 'cached widget "%o"(%o)', _oCurrentWidget, _oCurrentWidget.id );
-			}
-		}
-	}
-*/
-	/**
-	 * Method used get a relation from the library
-	 *
-	 * @method    getRelation
-	 * @public
-	 *
-	 * @param	{Number}		iID				The ID of the relation
-	 *
-	 * @return	{Object}	returns the requested relation; null if not present
-	 *
-	 * @example
-	 *   Ancilla.getRelation( 1 );
-	 */
-	getRelation( iID ){
-		return this.__oMemoryCache.oRelations[ iID ];
 	}
 
-	/**
-	 * Method used get objects from the library by their parent ID
-	 *
-	 * @method    getObjsByParent
-	 * @public
-	 *
-	 * @param	{Number}		iID				The ID of the parent object
-	 *
-	 * @return	{Array}	returns an array of objects related as children of the parent
-	 *
-	 * @example
-	 *   Ancilla.getObjsByParent( 1 );
-	 */
-/*
-	getObjsByParent( iID ){
-		if( typeof this.__oMemoryCache.oObjsByParents[ iID ] == 'undefined' ){
-			this.__oMemoryCache.oObjsByParents[ iID ] = new Array();
+	getWidget( item, oOptions ){
+		oOptions = Object.assign({
+			bFromCache: false
+		}, oOptions );
+		let _Ancilla = this;
+		if( oOptions.bFromCache ){
+			return _Ancilla.__geEntityCache( 'oWidgets', item );
+		} else {
+			return this.__getEntity( 'WIDGET', item )
+				.then( function( aQueryResults ){
+					return _Ancilla.__createEntity( 'Widget', 'oWidgets', aQueryResults, oOptions );
+				})
+			;
 		}
-		return this.__oMemoryCache.oObjsByParents[ iID ];
 	}
-*/
-	/**
-	 * Method used get objects from the library by their child ID
-	 *
-	 * @method    getObjsByChild
-	 * @public
-	 *
-	 * @param	{Number}		iID				The ID of the child object
-	 *
-	 * @return	{Array}	returns an array of objects related as parents of the child
-	 *
-	 * @example
-	 *   Ancilla.getObjsByChild( 1 );
-	 */
-/*
-	getObjsByChild( iID ){
-		if( typeof this.__oMemoryCache.oObjsByChildren[ iID ] == 'undefined' ){
-			this.__oMemoryCache.oObjsByChildren[ iID ] = new Array();
-		}
-		return this.__oMemoryCache.oObjsByChildren[ iID ];
+
+	__getEntity( sResourceName, item ){
+		let _Ancilla = this;
+		return this.query({
+					from: sResourceName,
+					where: ( isNaN( item ) ? item : { 'id': item } )
+			})
+			.catch( function( oError ){
+				_Ancilla.error( '[Error "%o"] failed to load "%o -> %o" from server', oError, sResourceName, item );
+				throw oError ;
+			})
+		;
 	}
-*/
-	/**
-	 * Method used get a widget from the library
-	 *
-	 * @method    getWidget
-	 * @public
-	 *
-	 * @param	{Number}		iID				The ID of the widget
-	 *
-	 * @return	{Object}	returns the requested widget; null if not present
-	 *
-	 * @example
-	 *   Ancilla.getWidget( 1 );
-	 */
-	getWidget( iID ){
-		return this.__oMemoryCache.oWidgets[ iID ];
+
+	__geEntityCache( sCacheType, key ){
+		return this.__oMemoryCache[ sCacheType ][ key ];
+	}
+
+	__seEntityCache( sCacheType, key, value ){
+		this.__oMemoryCache[ sCacheType ][ key ] = value;
+	}
+
+	__createEntity( sClassType, sCacheType, aItems, oOptions ){
+		oOptions = Object.assign({
+			bDisableResultRedux: true
+		}, oOptions );
+		let _Ancilla = this;
+		// Dinamically importing needed Classes
+		let _aLibsToImport = [];
+		aItems.forEach( function( oItem ){
+			let _sDependency = 'ancilla:' + sClassType + '.' + ( oItem.type ? oItem.type.toLowerCase() : 'core' );
+			if( _aLibsToImport.indexOf( _sDependency ) === -1 ){
+				_aLibsToImport.push( _sDependency );
+			}
+		} );
+		return Tools.import( _aLibsToImport )
+			.then( function( aClasses ){
+				let _aEntities = [];
+				aItems.forEach(function( oItem ){
+					let _oCachedEntity = _Ancilla.__geEntityCache( sCacheType, oItem.id );
+					if( _oCachedEntity ){
+						_aEntities.push( _oCachedEntity );
+					} else {
+						// Building class name
+						let _sType = ( oItem.type ? oItem.type.toLowerCase() : 'core' );
+						let _sClass = sClassType + _sType.charAt(0).toUpperCase() + _sType.slice(1);
+						// Istantiating object
+						let fClass = null;
+						for( let _iIndex=0; _iIndex<aClasses.length; _iIndex++ ){
+							let _oCurrentLibClass = aClasses[ _iIndex ];
+							if( _oCurrentLibClass[ _sClass ] ){
+								fClass = _oCurrentLibClass[ _sClass ];
+								break;
+							}
+						}
+						if( fClass ){
+							let _oEntity = new fClass( oItem );
+							_aEntities.push( _oEntity );
+							_Ancilla.__seEntityCache( sCacheType, _oEntity.id, _oEntity );
+						} else {
+							_Ancilla.error( 'Unable to find class "%o"', _sClass );
+						}
+					}
+				});
+				return ( oOptions.bDisableResultRedux ? ( _aEntities.length > 1 ? _aEntities : _aEntities[ 0 ] ) : _aEntities );
+			})
+		;
 	}
 
 	/**
@@ -956,41 +507,6 @@ console.error( 'TODO: cache query results: %o', arguments );
 		;
 	}
 }
-
-/*
-//Polyfills - Object.assign
-if( !Object.assign ){
-	Object.defineProperty(Object, 'assign', {
-		enumerable: false,
-		configurable: true,
-		writable: true,
-		value: function(target, firstSource) {
-		  'use strict';
-		  if (target === undefined || target === null) {
-			throw new TypeError('Cannot convert first argument to object');
-		  }
-
-		  var to = Object(target);
-		  for (var i = 1; i < arguments.length; i++) {
-			var nextSource = arguments[i];
-			if (nextSource === undefined || nextSource === null) {
-			  continue;
-			}
-
-			var keysArray = Object.keys(Object(nextSource));
-			for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-			  var nextKey = keysArray[nextIndex];
-			  var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-			  if (desc !== undefined && desc.enumerable) {
-				to[nextKey] = nextSource[nextKey];
-			  }
-			}
-		  }
-		  return to;
-		}
-	});
-}
-*/
 
 // Exporting Singleton
 const Ancilla = new AncillaClass();

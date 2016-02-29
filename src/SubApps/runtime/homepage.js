@@ -6,11 +6,14 @@ export class Homepage extends CoreViewModel{
   constructor(){
     super();
     this.aEnvironments = [];
+    this.bLoading = true;
+    this.iLoadingOffest = 0;
+    this.iLoadingElements = 10;
   }
 
   activate(){
     // Should load "Favourites" environment before showing something
-    var _View = this;
+    let _View = this;
     return this.getObj( Constant._ENVIRONMENT_FAVOURITES_ID )
       .then( function( oObj ){
         _View.aEnvironments.push( oObj );
@@ -20,7 +23,26 @@ export class Homepage extends CoreViewModel{
   }
 
   attached(){
-    this.error( 'SHOULD LOAD ALL GROUPS!' );
+    return this.loadNextEnvironments();
+  }
+
+  loadNextEnvironments(){
+    let _View = this;
+    _View.bLoading = true;
+    _View.getObj({
+      and: [
+        { id: { '!=': Constant._ENVIRONMENT_FAVOURITES_ID } },
+        { type: Constant._OBJECT_TYPE_GROUP }
+      ]
+    })
+      .then( function( aEnvironments ){
+        if( aEnvironments ){
+          _View.aEnvironments = _View.aEnvironments.concat( aEnvironments );
+        }
+        _View.bLoading = false;
+        return this;
+      })
+    ;
   }
 
 }
