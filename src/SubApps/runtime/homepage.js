@@ -1,4 +1,4 @@
-import {CoreViewModel} from '../core/core.view-model';
+import {CoreViewModel} from '../core/classes/view-model';
 import { default as Constant } from 'ancilla:Constants';
 
 export class Homepage extends CoreViewModel{
@@ -37,7 +37,9 @@ export class Homepage extends CoreViewModel{
     })
       .then( function( aEnvironments ){
         if( aEnvironments ){
-          _View.aEnvironments = _View.aEnvironments.concat( aEnvironments );
+          aEnvironments.forEach( function( oEnvironment ){
+            _View.aEnvironments.push( oEnvironment );
+          });
         }
         _View.bLoading = false;
         return this;

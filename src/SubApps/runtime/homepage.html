@@ -1,12 +1,10 @@
 <template>
+	<require from='./components/widget'></require>
 	<div class="container">
 		<div class="row">
-	    <div class="col-md-12 text-center">
+	    <div class="col-md-1c2 text-center">
 				<div repeat.for="oEnvironment of aEnvironments" >
-					<compose
-					  model.bind="[oEnvironment,'homepage']"
-					  view-model="./widgets/${oEnvironment.getWidget().getModel()}">
-					</compose>
+    			<widget view="homepage" object.bind="oEnvironment"></widget>
 				</div>
 				<div show.bind="bLoading">
 					<h1>${getConstant('_LANG_LOADING')}</h1>

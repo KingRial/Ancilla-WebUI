@@ -1,6 +1,6 @@
 import {customElement,bindable} from 'aurelia-framework';
 import { default as Ancilla } from 'ancilla:Ancilla';
-import {CoreViewModel} from './SubApps/core/core.view-model';
+import {CoreViewModel} from '../SubApps/core/classes/view-model';
 
 @customElement('status')
 export class Status extends CoreViewModel{

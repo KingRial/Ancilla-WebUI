@@ -1,5 +1,5 @@
 import { default as Ancilla } from 'ancilla:Ancilla';
-import {CoreViewModel} from '../core/core.view-model';
+import {CoreViewModel} from '../core/classes/view-model';
 
 // Extending Grid to be able to load objects on activate event
 export class App extends CoreViewModel {

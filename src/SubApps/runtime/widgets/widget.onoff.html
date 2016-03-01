@@ -1,7 +1,5 @@
 <template>
-  <!-- Importing Widget List -->
-  <compose
-    model.bind="oObj"
-    view-model="./widget.list">
-  </compose>
+  <require from='../components/widget'></require>
+  <!-- Composing Widget List -->
+  <widget view="${sView}" object.bind="oObj" view-model="./widget.list"></widget>
 </template>

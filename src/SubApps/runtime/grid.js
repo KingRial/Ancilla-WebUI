@@ -1,4 +1,4 @@
-import {CoreViewModel} from '../core/core.view-model'
+import {CoreViewModel} from '../core/classes/view-model'
 import { default as Constant } from 'ancilla:Constants';
 
 export class Grid extends CoreViewModel{

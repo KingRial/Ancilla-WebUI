@@ -1,6 +1,6 @@
 import {Redirect} from 'aurelia-router';
 import { default as Ancilla } from 'ancilla:Ancilla';
-import {CoreViewModel} from './SubApps/core/core.view-model';
+import {CoreViewModel} from './SubApps/core/classes/view-model';
 // Generic theme custom libs
 //import 'bootstrap';
 
