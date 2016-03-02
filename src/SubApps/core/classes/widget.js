@@ -1,3 +1,20 @@
+/**
+ * A custom element to compile an object's widget
+ *
+ * @class	CoreWidget
+ * @private
+ *
+ * @param	{Object}		object		    The object which should be shown using the widget
+ * @param	{String}		[view]		    The view for which the widget should be composed
+ * @param	{String}		[view-model]	The view-model to use instead of the view model configured in the object
+ *
+ * @return	{Object} An ancilla custom element called "widget"
+ *
+ * @example
+ * <widget view="homepage" object.bind="oObjectToCompose"></widget>
+ * <widget view="homepage" view-model="../widget.list" object.bind="oObjectToCompose"></widget>
+ */
+
 import {CoreViewModel} from './view-model'
 
 export class CoreWidget extends CoreViewModel{

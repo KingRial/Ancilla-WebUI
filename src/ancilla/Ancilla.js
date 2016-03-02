@@ -484,25 +484,36 @@ class AncillaClass extends CoreLibrary {
 	}
 
 	/**
-	 * Method used to start Ancilla
+	 * Method used to check when Ancilla is ready
 	 *
-	 * @method    start
+	 * @method    ready
 	 * @public
 	 *
 	 * @return	{Object}	returns a Promise successfull when Ancilla is ready or failed when an error occurs
 	 *
 	 * @example
-	 *   Ancilla.start();
+	 *   Ancilla.ready();
 	 */
-	start(){
+	ready(){
 		this.info('Starting...');
 		// Init WebSocket
 		//var _oOptions = this.getOptions();
 		var _sWsURL = this.getServerAddress( 'websocket' );
 		var _Ancilla = this;
-		return this.__initWebSocket( _sWsURL )
+		return _Ancilla.__oDBManager.ready()
+			.then( function(){
+				return _Ancilla.__oAuth.ready();
+			})
+			/*
+			.then( function(){
+				return _Ancilla.__initWebSocket( _sWsURL );
+			})
+			*/
+			.then(function(oError){
+				_Ancilla.info( 'Ready.' );
+			})
 			.catch(function(oError){
-				_Ancilla.error( '[ Error: %o ] Unable to initialize web socket.', oError );
+				_Ancilla.error( '[ Error: %o ] Unable to start Ancilla.', oError );
 			})
 		;
 	}

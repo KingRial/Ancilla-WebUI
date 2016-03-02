@@ -7,7 +7,7 @@ export class Store extends CoreLibrary {
   constructor( oOptions ){
     oOptions = Object.assign({
       sName: 'GenericStore',
-      driver: [ Constant._STORE_INDEXEDDB, Constant._STORE_LOCALSTORAGE, Constant._STORE_WEBSQL ], // An array of drivers or a single driver
+      driver: [ Constant._STORE_INDEXEDDB, Constant._STORE_WEBSQL, Constant._STORE_LOCALSTORAGE ], // An array of drivers or a single driver
       sVersion: Constant._ANCILLA_CORE_VERSION,
       iSize: 4980736, // Size of database, in bytes. WebSQL-only for now.
       sStoreName: ( oOptions.sName ? oOptions.sName : 'Generic_Store' ), // Should be alphanumeric, with underscores.
@@ -19,20 +19,27 @@ export class Store extends CoreLibrary {
     //let _Store = this;
     this.debug( 'Creating store %o with following options: %o.', oOptions.sName, oOptions );
     // Creating "LocalForage" instance and returning it
-    this.__oStore = localForage.createInstance({
+    let _oStoreOptions = {
       name: oOptions.sName,
       driver: oOptions.driver,
       version: oOptions.sVersion,
       size: oOptions.iSize,
       storeName: oOptions.sStoreName,
       description: oOptions.sDescription
-    });
+    };
+    this.__oStore = localForage.createInstance( _oStoreOptions );
+  }
+
+  ready(){
+    return this.__oStore.ready();
   }
 
   getItem( sKey ){
+console.error( 'getItem: ', sKey );
     let _Store = this;
     return this.__oStore.getItem( sKey )
       .then( function( value ){
+console.error( 'getItem result: ', sKey );
         _Store.debug( 'Get key %o: %o', sKey, value );
         return value;
       })

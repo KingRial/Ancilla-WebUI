@@ -25,6 +25,10 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
     this.debug( 'Using base URL "%o" to communicate with the server.', this.__sBaseURL );
   }
 
+  ready(){
+    return this._oAuthStore.ready();
+  }
+
   getClientID(){
 // TODO: these should be configurable by advanced users
     return Constant._OAUTH_CLIENT_ID;
