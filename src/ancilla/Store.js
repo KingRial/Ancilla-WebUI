@@ -8,7 +8,7 @@ export class Store extends CoreLibrary {
     oOptions = Object.assign({
       sName: 'GenericStore',
       driver: [ Constant._STORE_INDEXEDDB, Constant._STORE_WEBSQL, Constant._STORE_LOCALSTORAGE ], // An array of drivers or a single driver
-      sVersion: Constant._ANCILLA_CORE_VERSION,
+      sVersion: '1.0', //Constant._ANCILLA_CORE_VERSION, // Cannot use Ancilla Core Version!
       iSize: 4980736, // Size of database, in bytes. WebSQL-only for now.
       sStoreName: ( oOptions.sName ? oOptions.sName : 'Generic_Store' ), // Should be alphanumeric, with underscores.
       sDescription: null
@@ -35,11 +35,9 @@ export class Store extends CoreLibrary {
   }
 
   getItem( sKey ){
-console.error( 'getItem: ', sKey );
     let _Store = this;
     return this.__oStore.getItem( sKey )
       .then( function( value ){
-console.error( 'getItem result: ', sKey );
         _Store.debug( 'Get key %o: %o', sKey, value );
         return value;
       })
@@ -69,6 +67,66 @@ console.error( 'getItem result: ', sKey );
       })
       .catch( function( error ){
         _Store.error( 'Error %o: Unable to remove key %o', error, sKey );
+      })
+    ;
+  }
+
+  clear(){
+    let _Store = this;
+    return this.__oStore.clear()
+      .then( function(){
+        _Store.debug( 'Cleared store' );
+      })
+      .catch( function( error ){
+        _Store.error( 'Error %o: Unable to clear store', error );
+      })
+    ;
+  }
+
+  iterate( fIteratorCallback ){
+    let _Store = this;
+    return this.__oStore.iterate( fIteratorCallback )
+      .then( function(){
+        _Store.debug( 'Iterated over store' );
+      })
+      .catch( function( error ){
+        _Store.error( 'Error %o: Failed to iterate over store', error );
+      })
+    ;
+  }
+
+  key( iKeyIndex ){
+    let _Store = this;
+    return this.__oStore.key( iKeyIndex )
+      .then( function( sKey ){
+        _Store.debug( 'Got key %o from index %o', sKey, iKeyIndex );
+      })
+      .catch( function( error ){
+        _Store.error( 'Error %o: Unable to get key from index %o', error, iKeyIndex );
+      })
+    ;
+  }
+
+  keys(){
+    let _Store = this;
+    return this.__oStore.keys()
+      .then( function( aKeys ){
+        _Store.debug( 'Got all key\'s store %o', aKeys );
+      })
+      .catch( function( error ){
+        _Store.error( 'Error %o: Unable to get all keys from store', error );
+      })
+    ;
+  }
+
+  length(){
+    let _Store = this;
+    return this.__oStore.removeItlengthem()
+      .then( function( iNumber ){
+        _Store.debug( 'Got %o keys in the store', iNumber );
+      })
+      .catch( function( error ){
+        _Store.error( 'Error %o: Unable to get how mnay keys are in the store', error );
       })
     ;
   }

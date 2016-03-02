@@ -112,10 +112,8 @@ export default class DBManager extends CoreLibrary {
       })
       .then( function(){
         // Checking if query can be done locally
-console.error( 'Checking query...' );
         return _DBManager._oDBQueryStore.getItem( _sQuery )
           .then( function( bFound ){
-console.error( 'QUERY IS: ', arguments );
             if( bFound ){
               _DBManager.debug( 'Executing query LOCALLY: %o ...', _sQuery );
               return _DBManager.__oDB.executeQuery(
@@ -129,9 +127,6 @@ console.error( 'QUERY IS: ', arguments );
                   .using( breeze.FetchStrategy.FromServer )
               );
             }
-          })
-          .catch(function(){
-console.error( 'ERROR:', arguments );
           })
         ;
       })
