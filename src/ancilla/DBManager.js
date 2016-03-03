@@ -13,11 +13,17 @@ export default class DBManager extends CoreLibrary {
       oAuthenticator: null
 		}, oOptions );
     super( oOptions );
-    this._oDBQueryStore = new Store({
+    this.__oDBQueryStore = new Store({
       sName: 'BreezeDB',
       sStoreName: 'QueryHistory',
       sDescription: 'Storing Query History locally'
     });
+    this.__oDBBreezeStore = new Store({
+      sName: 'BreezeDB',
+      sStoreName: 'BreezeCache',
+      sDescription: 'Storing Breeze Cache'
+    });
+    this.__aLatestQueriesDone = [];
     this.__oAuthenticator = oOptions.oAuthenticator;
     this.__sBaseURL = ( oOptions.sBaseURL ? Tools.getProtocol( oOptions.sBaseURL ) + '://' + Tools.getIP( oOptions.sBaseURL ) + ':' + Constant._PORT_SERVER_HTTP + '/' : '' ) + 'breeze';
     this.debug( 'Using base URL "%o" to communicate with the server.', this.__sBaseURL );
@@ -78,7 +84,61 @@ export default class DBManager extends CoreLibrary {
   }
 
   ready(){
-    return this._oDBQueryStore.ready();
+    let _DBManager = this;
+    return this.__oDBQueryStore.ready()
+      .then( function(){
+        return _DBManager.__oDBBreezeStore.ready();
+      })
+      .then( function(){
+        return _DBManager.cacheInit();
+      })
+    ;
+  }
+
+  cacheInit(){
+    let _DBManager = this;
+    return this.__oDBBreezeStore.getItem( 'cache' )
+      .then( function( sCache ){
+        _DBManager.__oDB.importEntities( sCache );
+      })
+      .catch( function( oError ){
+        _DBManager.error( 'Unable to initialize DB caches. Error: %o', oError );
+      })
+    ;
+  }
+
+  cacheSave(){
+    let _DBManager = this;
+    // Caching breeze entities
+    return this.__oDBBreezeStore.setItem( 'cache' , this.__oDB.exportEntities() )
+      .then( function(){
+        // Caching latest new query done to the server
+        let _aPromises = [];
+        for( let _sQuery in _DBManager.__aLatestQueriesDone ){
+          if( _DBManager.__aLatestQueriesDone.hasOwnProperty( _sQuery ) ){
+            _aPromises.push( _DBManager.__oDBQueryStore.setItem( _sQuery , _DBManager.__aLatestQueriesDone[ _sQuery ] ) );
+          }
+        }
+        return Promise.all( _aPromises );
+      })
+      .then( function(){
+        // Reinit latest queries done
+        _DBManager.__aLatestQueriesDone = [];
+      })
+      .catch( function( oError ){
+        _DBManager.error( 'Unable to save DB caches. Error: %o', oError );
+      })
+    ;
+  }
+
+  cacheClear(){
+    let _DBManager = this;
+    // Caching breeze entities
+    return this.__oDBQueryStore.clear()
+      .then( function(){
+        return _DBManager.__oDBBreezeStore.clear();
+      })
+    ;
   }
 
   getEntityQuery( oJSONQuery ){
@@ -86,10 +146,8 @@ export default class DBManager extends CoreLibrary {
     return new breeze.EntityQuery( oJSONQuery );
   }
 
-
 //SEE http://breeze.github.io/doc-js/query-using-json.html
   query( oJSONQuery, oOptions ){
-//TODO: handling export/import to save DB locally; manager.exportEntities();importEntities();
     oOptions = Object.assign({
 			bParseResponse: true
 		}, oOptions );
@@ -112,9 +170,9 @@ export default class DBManager extends CoreLibrary {
       })
       .then( function(){
         // Checking if query can be done locally
-        return _DBManager._oDBQueryStore.getItem( _sQuery )
+        return _DBManager.__oDBQueryStore.getItem( _sQuery )
           .then( function( bFound ){
-            if( bFound ){
+            if( bFound || _DBManager.__aLatestQueriesDone[ _sQuery ] ){
               _DBManager.debug( 'Executing query LOCALLY: %o ...', _sQuery );
               return _DBManager.__oDB.executeQuery(
                 _DBManager.getEntityQuery( oJSONQuery )
@@ -125,7 +183,13 @@ export default class DBManager extends CoreLibrary {
               return _DBManager.__oDB.executeQuery(
                 _DBManager.getEntityQuery( oJSONQuery )
                   .using( breeze.FetchStrategy.FromServer )
-              );
+              )
+                .then( function( oData ){
+                  // Remembering locally this new query has already been asked to the server ( it will be saved later in a persistant store when we save the query manager export too! )
+                  _DBManager.__aLatestQueriesDone[ _sQuery ] = true;
+                  return oData;
+                })
+              ;
             }
           })
         ;

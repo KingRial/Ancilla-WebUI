@@ -12,14 +12,43 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
+					<!--
 					<li repeat.for="oItem of oRouter.navigation" class="${oItem.isActive ? 'active' : ''}" >
 						<a href.bind="oItem.href">${oItem.title}</a>
 					</li>
-					<li>
-						<a>
-							<i title="${getConstant('_LANG_MENU')}" class="navigation-menu mdi-action-view-list" data-activates="navigation-menu"></i>
+					--->
+					<li class="dropdown">
+	          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							<i class="fa fa-cogs"></i><span class="caret"></span>
 						</a>
-					</li>
+	          <ul class="dropdown-menu">
+							<!-- Administration -->
+	            <li>
+								<a href="#/configuration" >
+									<i class="fa fa-wrench"></i>   ${getConstant('_LANG_ADMINISTRATION')}
+								</a>
+							</li>
+							<li role="separator" class="divider"></li>
+							<!-- Clearing Caches -->
+							<li>
+								<a href="#" click.delegate="cachesSave()">
+									<i class="fa fa-floppy-o"></i>  ${getConstant('_LANG_CACHE_SAVE')}
+								</a>
+							</li>
+	            <li>
+								<a href="#" click.delegate="cachesClear()">
+									<i class="fa fa-trash-o"></i>  ${getConstant('_LANG_CACHE_CLEAR')}
+								</a>
+							</li>
+	            <li role="separator" class="divider"></li>
+							<!-- Logging out -->
+	            <li>
+								<a href="#/logout">
+  								<i class="fa fa-user"></i>  ${getConstant('_LANG_LOGOUT')}
+								</a>
+							</li>
+	          </ul>
+        	</li>
         </ul>
       </div>
     </div>

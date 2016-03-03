@@ -483,6 +483,33 @@ class AncillaClass extends CoreLibrary {
 		;
 	}
 
+	cachesSave(){
+		let _Ancilla = this;
+		return this.__oDBManager.cacheSave()
+			.then( function(){
+				_Ancilla.info( 'Saved caches' );
+			})
+			.catch( function( oError ){
+				_Ancilla.info( 'Failed to save caches. Error: %o', oError );
+			})
+		;
+	}
+
+	cachesClear(){
+		let _Ancilla = this;
+		return this.__oAuth.clearTokens()
+			.then( function(){
+				return _Ancilla.__oDBManager.cacheClear();
+			})
+			.then( function(){
+				_Ancilla.info( 'Cleared caches' );
+			})
+			.catch( function( oError ){
+				_Ancilla.info( 'Failed to clear caches. Error: %o', oError );
+			})
+		;
+	}
+
 	/**
 	 * Method used to check when Ancilla is ready
 	 *

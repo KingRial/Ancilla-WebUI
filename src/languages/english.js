@@ -12,6 +12,8 @@ const Language = {
   _LANG_STATUS: 'Status',
   _LANG_RUNTIME: 'Runtime',
   _LANG_ADMINISTRATION: 'Administration',
+  _LANG_CACHE_SAVE: 'Save cache',
+  _LANG_CACHE_CLEAR: 'Clear cache',
   _LANG_DEVELOPER: 'Developer',
   _LANG_UNKNOWN: 'Unknown',
   _LANG_ADD: 'Add',

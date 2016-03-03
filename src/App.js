@@ -2,7 +2,7 @@ import {Redirect} from 'aurelia-router';
 import { default as Ancilla } from 'ancilla:Ancilla';
 import {CoreViewModel} from './SubApps/core/classes/view-model';
 // Generic theme custom libs
-//import 'bootstrap';
+import 'bootstrap';
 
 export class App extends CoreViewModel{
   configureRouter(config, router) {
@@ -10,9 +10,17 @@ export class App extends CoreViewModel{
     config.title = Ancilla.getConstant( '_LANG_ANCILLA' );
 		config.addPipelineStep( 'authorize', AuthorizeStep );
     config.map([
-      { route: [ '', 'runtime' ], name: 'runtime', moduleId: './SubApps/runtime/App',	title: Ancilla.getConstant( '_LANG_RUNTIME' ), nav: true },
-      { route: [ 'logout', 'login' ], name: 'login', moduleId: './login',	nav: true,	title: Ancilla.getConstant( '_LANG_LOGOUT' ) }
+      { route: [ '', 'runtime' ], name: 'runtime', moduleId: './SubApps/runtime/App',	title: Ancilla.getConstant( '_LANG_RUNTIME' ) },
+      { route: [ 'logout', 'login' ], name: 'login', moduleId: './login',	nav: false,	title: Ancilla.getConstant( '_LANG_LOGOUT' ) }
     ]);
+  }
+
+  cachesSave(){
+    return Ancilla.cachesSave();
+  }
+
+  cachesClear(){
+    return Ancilla.cachesClear();
   }
 }
 
