@@ -18,10 +18,10 @@
     "url": "https://github.com/KingRial/Ancilla-WebUI"
   },
   "devDependencies": {
-    "aurelia-bundler": "^0.2.1",
-    "babel": "^6.3.26",
-    "babel-eslint": "^5.0.0-beta6",
-    "jspm": "^0.16.23"
+    "aurelia-bundler": "^0.3.2",
+    "babel": "^6.5.2",
+    "babel-eslint": "^5.0.0",
+    "jspm": "^0.16.31"
   },
   "jspm": {
     "dependencies": {

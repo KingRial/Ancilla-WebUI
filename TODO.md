@@ -1,0 +1,1 @@
+- DBManager: improve drastically the logic to decide when contacting the server or the local resources
