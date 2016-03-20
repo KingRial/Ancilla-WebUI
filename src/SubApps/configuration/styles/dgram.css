@@ -1,0 +1,85 @@
+.dgram-container {
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+}
+.dgram-container .rubberband {
+    border: 1px green solid;
+}
+.dgram {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+.dgram-element {
+    position: absolute;
+    padding: 50px;
+    border: 2px #006800 solid;
+    border-radius: 20px;
+    background: #CCE0CC;
+}
+.dgram-element-hover {
+    background: orange;
+}
+.dgram-element-selected {
+    border: 2px red solid;
+}
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+/* Styling JSPlumb https://jsplumbtoolkit.com/community/doc/styling-via-css.html */
+/*
+.dgram-container .jsplumb-source-hover svg > * {
+    stroke: yellow;
+}
+.dgram-container .jsplumb-target-hover svg > * {
+    stroke: orange;
+}
+*/
+.dgram-container .jsplumb-endpoint svg > * {
+    opacity: 0.5;
+    stroke: #003068;
+    fill: #CCD5E1;
+    stroke-width: 3px;
+    /* Rect */
+    width: 16;
+    height: 16;
+    /* Circle */
+    cx: 10;
+    cy: 10;
+    r: 7;
+}
+.dgram-container .jsplumb-endpoint.jsplumb-hover svg > * {
+    opacity: 1;
+    stroke: blue;
+    fill: blue;
+}
+.dgram-container .jsplumb-endpoint.jsplumb-endpoint-full svg > * {
+    stroke: orange;
+    fill: orange;
+}
+/*
+.dgram-container .jsplumb-endpoint.jsplumb-endpoint-drop-allowed svg > * {
+    fill: green;
+}
+.dgram-container .jsplumb-endpoint.jsplumb-endpoint-drop-forbidden svg > * {
+    fill: red;
+}
+*/
+.dgram-container svg.jsplumb-connector > * {
+    stroke: #003067;
+}
+.dgram-container svg.jsplumb-connector :nth-child(2) {
+    fill: #003067;
+}
+.dgram-container svg.jsplumb-connector.jsplumb-hover > * {
+    stroke: orange;
+}
+.dgram-container svg.jsplumb-connector.jsplumb-hover :nth-child(2) {
+    fill: orange;
+}

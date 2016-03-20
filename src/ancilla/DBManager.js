@@ -99,7 +99,11 @@ export default class DBManager extends CoreLibrary {
     let _DBManager = this;
     return this.__oDBBreezeStore.getItem( 'cache' )
       .then( function( sCache ){
-        _DBManager.__oDB.importEntities( sCache );
+        if( sCache ){
+          _DBManager.__oDB.importEntities( sCache );
+        } else {
+          _DBManager.debug( 'No DB caches stored. Local DB is initialized as empty.' );
+        }
       })
       .catch( function( oError ){
         _DBManager.error( 'Unable to initialize DB caches. Error: %o', oError );

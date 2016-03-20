@@ -1,3 +1,24 @@
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+.viewport {
+  height: 100%;
+}
+
+.viewport.with-header {
+  height: calc(100% - 72px);
+}
+
+.viewport.with-footer {
+  height: calc(100% - 72px);
+}
+
+.viewport.with-header.with-footer {
+  height: calc(100% - 144px);
+}
+
 .app-alert {
   position: absolute;
   width: 100%;

@@ -15,7 +15,7 @@
  * <widget view="homepage" view-model="../widget.list" object.bind="oObjectToCompose"></widget>
  */
 
-import {CoreViewModel} from './view-model'
+import {CoreViewModel} from './view-model';
 
 export class CoreWidget extends CoreViewModel{
 

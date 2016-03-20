@@ -1,0 +1,27 @@
+<template>
+  <!-- Configuration View port -->
+  <div class="viewport with-footer configuration">
+    <router-view></router-view>
+  </div>
+  <!-- Navigation -->
+	<nav class="navbar navbar-default">
+    <div class="container">
+      <div id="navbar" class="navbar-collapse collapse" if.bind="bShowNavBar">
+        <ul class="nav navbar-nav navbar-right">
+					<li class="dropup">
+	          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							<i class="fa fa-bars"></i><span class="caret"></span>
+						</a>
+	          <ul class="dropdown-menu">
+    					<li repeat.for="oItem of oRouter.navigation" class="${oItem.isActive ? 'active' : ''}" >
+                <a href="${oItem.href}" >
+									<i class="fa ${oItem.settings.classCSS}"></i>   ${oItem.title}
+								</a>
+    					</li>
+	          </ul>
+        	</li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</template>

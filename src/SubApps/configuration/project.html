@@ -1,0 +1,17 @@
+<template>
+	<require from='./styles/project.css'></require>
+	<div class="container project">
+		<div class="row">
+	    <div class="col col-md-1c2 text-center">
+				<require from='./components/widget'></require>
+				<div class="dgram-container">
+		        <div class="dgram">
+		            <div repeat.for="oObject of aObjects" >
+		                <widget view="project" object.bind="oObject" view-model="widget.dgram" dgram.bind="oDgram"></widget>
+		        	</div>
+		        </div>
+		    </div>
+			</div>
+		</div>
+	</div>
+</template>

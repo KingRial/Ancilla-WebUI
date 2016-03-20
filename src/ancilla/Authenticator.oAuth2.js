@@ -375,6 +375,7 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
   }
 
   logOut(){
+//TODO: should jump to logout page too if not present...
       return this.clearTokens();
   }
 }

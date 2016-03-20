@@ -5,12 +5,27 @@ import {CoreViewModel} from './SubApps/core/classes/view-model';
 import 'bootstrap';
 
 export class App extends CoreViewModel{
+
+  get bShowNavBar() {
+    return ( this.oRouter && this.oRouter.currentInstruction && this.oRouter.currentInstruction.config.name === 'login' ? false : true );
+  }
+
+  get bIsRuntime(){
+    return ( this.oRouter && this.oRouter.currentInstruction && this.oRouter.currentInstruction.config.name === 'runtime' ? true : false );
+  }
+
+  get bIsConfiguration(){
+    return ( this.oRouter && this.oRouter.currentInstruction && this.oRouter.currentInstruction.config.name === 'configuration' ? true : false );
+  }
+
+
   configureRouter(config, router) {
     this.oRouter = router;
     config.title = Ancilla.getConstant( '_LANG_ANCILLA' );
 		config.addPipelineStep( 'authorize', AuthorizeStep );
     config.map([
       { route: [ '', 'runtime' ], name: 'runtime', moduleId: './SubApps/runtime/App',	title: Ancilla.getConstant( '_LANG_RUNTIME' ) },
+      { route: [ 'configuration' ], name: 'configuration', moduleId: './SubApps/configuration/App',	title: Ancilla.getConstant( '_LANG_CONFIGURATION' ) },
       { route: [ 'logout', 'login' ], name: 'login', moduleId: './login',	nav: false,	title: Ancilla.getConstant( '_LANG_LOGOUT' ) }
     ]);
   }

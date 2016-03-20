@@ -1,5 +1,5 @@
 <template>
-	<div class="grid-container" if.one-way="__oLoadedObj" >
+	<div class="container grid" if.one-way="__oLoadedObj" >
 		<div class="row" if.one-way="__oLoadedObj.getChildren().length>0" >
       <div repeat.for="oObj of __oLoadedObj.getChildren()" class="obj-${oObj.getID()} col s12 m6" show.bind="oObj.getWidget().getID()>0">
 				<compose

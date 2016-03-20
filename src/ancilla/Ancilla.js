@@ -548,4 +548,8 @@ class AncillaClass extends CoreLibrary {
 
 // Exporting Singleton
 const Ancilla = new AncillaClass();
+// Singleton is now accessible as a global window var
+if( !window.Ancilla ){
+	window.Ancilla = Ancilla;
+}
 export default Ancilla;

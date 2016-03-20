@@ -10,7 +10,7 @@
       <div class="navbar-header">
         <a class="navbar-brand" href="#">Ancilla</a>
       </div>
-      <div id="navbar" class="navbar-collapse collapse">
+      <div id="navbar" class="navbar-collapse collapse" if.bind="bShowNavBar">
         <ul class="nav navbar-nav navbar-right">
 					<!--
 					<li repeat.for="oItem of oRouter.navigation" class="${oItem.isActive ? 'active' : ''}" >
@@ -22,8 +22,14 @@
 							<i class="fa fa-cogs"></i><span class="caret"></span>
 						</a>
 	          <ul class="dropdown-menu">
+							<!-- Runtime -->
+	            <li if.bind="bIsConfiguration">
+								<a href="#/runtime" >
+									<i class="fa fa-wrench"></i>   ${getConstant('_LANG_RUNTIME')}
+								</a>
+							</li>
 							<!-- Administration -->
-	            <li>
+	            <li if.bind="bIsRuntime">
 								<a href="#/configuration" >
 									<i class="fa fa-wrench"></i>   ${getConstant('_LANG_ADMINISTRATION')}
 								</a>
@@ -55,8 +61,6 @@
   </nav>
 	<!-- App Viewport -->
 	<div class="viewport with-header">
-		<div class="viewport-content">
-			<router-view></router-view>
-		</div>
+		<router-view></router-view>
 	</div>
 </template>
