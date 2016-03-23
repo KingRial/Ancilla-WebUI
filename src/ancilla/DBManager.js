@@ -150,16 +150,12 @@ export default class DBManager extends CoreLibrary {
     return new breeze.EntityQuery( oJSONQuery );
   }
 
-//SEE http://breeze.github.io/doc-js/query-using-json.html
-  query( oJSONQuery, oOptions ){
-    oOptions = Object.assign({
-			bParseResponse: true
-		}, oOptions );
+  fetchMetadata(){
     let _DBManager = this;
-    let _sQuery = JSON.stringify( oJSONQuery );
     return new Promise( function( fResove, fReject ){
+        // Checking if Metadata has already been loaded; if not, fetching it from remote
         if( _DBManager.__oDB.metadataStore.isEmpty() ){
-          _DBManager.debug( 'Fetching metadata before executing query: %o ...', _sQuery );
+          _DBManager.debug( 'Fetching missing metadata...' );
           _DBManager.__oDB.fetchMetadata()
             .then(function(){
               fResove();
@@ -172,29 +168,37 @@ export default class DBManager extends CoreLibrary {
           fResove();
         }
       })
+    ;
+  }
+
+//SEE http://breeze.github.io/doc-js/query-using-json.html
+  query( oJSONQuery, oOptions ){
+    oOptions = Object.assign({
+			bParseResponse: true,
+      bFromCache: false,
+      bFromServer: false
+		}, oOptions );
+    let _DBManager = this;
+    let _sQuery = JSON.stringify( oJSONQuery );
+    return _DBManager.fetchMetadata()
+      // Checking if query can be done locally
       .then( function(){
-        // Checking if query can be done locally
-        return _DBManager.__oDBQueryStore.getItem( _sQuery )
-          .then( function( bFound ){
-            if( bFound || _DBManager.__aLatestQueriesDone[ _sQuery ] ){
-              _DBManager.debug( 'Executing query LOCALLY: %o ...', _sQuery );
-              return _DBManager.__oDB.executeQuery(
-                _DBManager.getEntityQuery( oJSONQuery )
-                  .using( breeze.FetchStrategy.FromLocalCache )
-              );
-            } else {
-              _DBManager.debug( 'Executing query SERVER: %o ...', _sQuery );
-              return _DBManager.__oDB.executeQuery(
-                _DBManager.getEntityQuery( oJSONQuery )
-                  .using( breeze.FetchStrategy.FromServer )
-              )
-                .then( function( oData ){
-                  // Remembering locally this new query has already been asked to the server ( it will be saved later in a persistant store when we save the query manager export too! )
-                  _DBManager.__aLatestQueriesDone[ _sQuery ] = true;
-                  return oData;
-                })
-              ;
+        return _DBManager.isLocalQuery( _sQuery, oOptions );
+      })
+      // Executing query
+      .then( function( bIsLocalQuery ){
+        _DBManager.debug( 'Executing query %o: %o ...', ( bIsLocalQuery ? 'LOCALLY' : 'REMOTLY' ), _sQuery );
+        return _DBManager.__oDB.executeQuery(
+          _DBManager.getEntityQuery( oJSONQuery )
+            .using( ( bIsLocalQuery ? breeze.FetchStrategy.FromLocalCache : breeze.FetchStrategy.FromServer ) )
+          )
+          .then( function( oData ){
+            // Remembering locally this new query has already been asked to the server ( it will be saved later in a persistant store when we save the query manager export too! )
+            if( !bIsLocalQuery ){
+              _DBManager.__aLatestQueriesDone[ _sQuery ] = true;
             }
+            // Returning collected data
+            return oData;
           })
         ;
       })
@@ -224,6 +228,29 @@ export default class DBManager extends CoreLibrary {
         throw oError;
       })
     ;
+  }
+
+  isLocalQuery( sQuery, oOptions ){
+    oOptions = Object.assign({
+      bFromCache: false,
+      bFromServer: false
+		}, oOptions );
+    let _DBManager = this;
+    if( oOptions.bFromCache ){
+      _DBManager.debug( 'Query %o is FORCED as LOCAL...', sQuery );
+      return Promise.resolve( true );
+    } else if( oOptions.bFromServer ){
+      _DBManager.debug( 'Query %o is FORCED as REMOTE...', sQuery );
+      return Promise.resolve( false );
+    } else {
+      return _DBManager.__oDBQueryStore.getItem( sQuery )
+        .then( function( bFound ){
+          let _bIsLocalQuery =  ( bFound || _DBManager.__aLatestQueriesDone[ sQuery ] );
+          _DBManager.debug( 'Query %o is %o...', sQuery, ( _bIsLocalQuery ? 'LOCAL' : 'REMOTE' ) );
+          return _bIsLocalQuery;
+        })
+      ;
+    }
   }
 
 }

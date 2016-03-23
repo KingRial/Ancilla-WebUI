@@ -2,6 +2,7 @@
 
 import {LogManager} from 'aurelia-framework';
 import {ConsoleAppender} from 'aurelia-logging-console';
+import {Redirect} from 'aurelia-router';
 import { default as Ancilla } from 'ancilla:Ancilla';
 
 LogManager.addAppender(new ConsoleAppender());
@@ -18,7 +19,9 @@ export function configure(aurelia) {
     //.plugin('aurelia-breeze')
     .plugin('aurelia-fetch-client')
   ;
-  Ancilla.ready()
+  Ancilla.ready({
+    fRedirect: Redirect
+  })
     .then( () => aurelia.start() )
     .then(() => aurelia.setRoot('App', document.body))
   ;

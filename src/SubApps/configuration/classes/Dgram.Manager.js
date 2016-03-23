@@ -25,17 +25,21 @@ export class DgramManager {
         this.__jContainer = $( this.__oOptions.sContainerSelector );
         this.__jDgramContainer = $( this.__oOptions.sDgramContainerSelector );
         this.__aElements = [];
-        // Init JSPlumb
-        this.__initJSPlumb();
-        // Init Zoom
-        this.__initZoom();
-        // Init rubberband
         this.__oRubberBand ={
             jRubberBand: null,
             oStartPoint: {},
             bDrawing: false
         };
-        this.__initRubberBand();
+        this.__init();
+    }
+
+    __init(){
+      // Init JSPlumb
+      this.__initJSPlumb();
+      // Init Zoom
+      this.__initZoom();
+      // Init rubberband
+      this.__initRubberBand();
     }
 
     __getContainer(){
@@ -153,7 +157,9 @@ export class DgramManager {
     }
 
     __updateDraggable( oElement ){
+console.error('Draggable: ', oElement );
         if( this.__oOptions.bDraggable && oElement ){
+console.error('Drag!');
             this.__getJSPlumbInstance()
                 .draggable( oElement )
             ;
@@ -162,7 +168,7 @@ export class DgramManager {
 
     __initZoom(){
         let _Dgram = this;
-        this.zoomReset();
+        //this.zoomReset();
         $( document ).on('mousewheel DOMMouseScroll', function( oEvent ){
             if( oEvent.shiftKey && _Dgram.__getDgramContainer().is( oEvent.target ) ){
                 let _iDirection = ( oEvent.originalEvent.detail < 0 || oEvent.originalEvent.wheelDelta > 0 ) ? 1 : -1; // Positive means zooming

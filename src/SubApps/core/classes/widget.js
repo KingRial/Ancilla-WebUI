@@ -48,14 +48,4 @@ export class CoreWidget extends CoreViewModel{
     this.oCurrentOptions = this.oWidget.getOption( newValue );
   }
 
-  getViewStrategy(){
-    let _sModel = '../widgets/widget.none';
-    if( this.sViewModel ){
-      _sModel = this.sViewModel;
-    } else if( this.oWidget ){
-      _sModel = '../widgets/' + this.oWidget.getModel();
-    }
-    return _sModel + '.html';
-  }
-
 }

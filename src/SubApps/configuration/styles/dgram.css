@@ -4,7 +4,7 @@
     overflow: scroll;
 }
 .dgram-container .rubberband {
-    border: 1px green solid;
+    border: 1px green dashed;
 }
 .dgram {
     position: relative;

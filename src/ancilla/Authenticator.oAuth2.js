@@ -9,7 +9,8 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
 
   constructor( oOptions ){
     oOptions = Object.assign({
-			sLoggerID: 'Authenticator.oAuth2'
+			sLoggerID: 'Authenticator.oAuth2',
+      onLoggingOut: null,
 		}, oOptions );
     super( oOptions );
     // Storing oAuth Tokens
@@ -293,6 +294,9 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
             _Authenticator.error( 'Failed to get a refreshed access token ( %o ); logging out application...', oError );
             return _Authenticator.logOut()
               .then(function(){
+                if( _Authenticator.__oOptions.onLoggingOut ){
+                  _Authenticator.__oOptions.onLoggingOut( oError );
+                }
                 throw oError;
               })
             ;

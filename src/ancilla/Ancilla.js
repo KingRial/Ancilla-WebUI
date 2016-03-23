@@ -55,7 +55,8 @@ class AncillaClass extends CoreLibrary {
 		this.__oServerRules = null;
 		//oAuth
 		this.__oAuth = new Authenticator( {
-			sBaseURL: this.getServerAddress()
+			sBaseURL: this.getServerAddress(),
+			onLoggingOut: () => this.redirect( 'logout' )
 		});
 		//DB Manager
 		this.__oDBManager = new DBManager({
@@ -163,6 +164,15 @@ class AncillaClass extends CoreLibrary {
 
 	logOut(){
 		return this.__oAuth.logOut();
+	}
+
+	redirect( sRoute ){
+		this.debug( 'Redirecting to route %o...', sRoute );
+		if( this.__onRedirect ){
+			this.__onRedirect( sRoute );
+		} else {
+			this.error( 'Unable to redirect to route %o; missing redirect handler.', sRoute );
+		}
 	}
 
 	getStatus( sStatus ){
@@ -308,8 +318,12 @@ class AncillaClass extends CoreLibrary {
 		return this.__oDBManager;
 	}
 
-	query( oJSONQuery ){
-		return this.getDB().query( oJSONQuery );
+	query( oJSONQuery, oOptions ){
+		oOptions = Object.assign({
+			bFromCache: false,
+			bFromServer: false
+		}, oOptions );
+		return this.getDB().query( oJSONQuery, oOptions );
 	}
 
 	/**
@@ -328,13 +342,15 @@ class AncillaClass extends CoreLibrary {
 	 */
 	getObj( item, oOptions ){
 		oOptions = Object.assign({
-			bFromCache: false
+			bFromCache: false,
+			bFromServer: false
 		}, oOptions );
 		let _Ancilla = this;
-		if( oOptions.bFromCache ){
-			return _Ancilla.__geEntityCache( 'oObjs', item );
+		let _oEntityCached = _Ancilla.__geEntityCache( 'oObjs', item );
+		if( !oOptions.bFromServer && _oEntityCached ){
+			return _oEntityCached;
 		} else {
-			return this.__getEntity( 'OBJECT', item )
+			return this.__getEntity( 'OBJECT', item, oOptions )
 				.then( function( aQueryResults ){
 					return _Ancilla.__createEntity( 'Object', 'oObjs', aQueryResults, oOptions );
 				})
@@ -385,13 +401,15 @@ class AncillaClass extends CoreLibrary {
 
 	getRelation( item, oOptions ){
 		oOptions = Object.assign({
-			bFromCache: false
+			bFromCache: false,
+			bFromServer: false
 		}, oOptions );
 		let _Ancilla = this;
-		if( oOptions.bFromCache ){
-			return _Ancilla.__geEntityCache( 'oRelations', item );
+		let _oEntityCached = _Ancilla.__geEntityCache( 'oRelations', item );
+		if( !oOptions.bFromServer && _oEntityCached ){
+			return _oEntityCached;
 		} else {
-			return this.__getEntity( 'RELATION', item )
+			return this.__getEntity( 'RELATION', item, oOptions )
 				.then( function( aQueryResults ){
 					return _Ancilla.__createEntity( 'Relation', 'oRelations', aQueryResults, oOptions );
 				})
@@ -401,13 +419,15 @@ class AncillaClass extends CoreLibrary {
 
 	getWidget( item, oOptions ){
 		oOptions = Object.assign({
-			bFromCache: false
+			bFromCache: false,
+			bFromServer: false
 		}, oOptions );
 		let _Ancilla = this;
-		if( oOptions.bFromCache ){
-			return _Ancilla.__geEntityCache( 'oWidgets', item );
+		let _oEntityCached = _Ancilla.__geEntityCache( 'oWidgets', item );
+		if( !oOptions.bFromServer && _oEntityCached ){
+			return _oEntityCached;
 		} else {
-			return this.__getEntity( 'WIDGET', item )
+			return this.__getEntity( 'WIDGET', item, oOptions )
 				.then( function( aQueryResults ){
 					return _Ancilla.__createEntity( 'Widget', 'oWidgets', aQueryResults, oOptions );
 				})
@@ -415,12 +435,18 @@ class AncillaClass extends CoreLibrary {
 		}
 	}
 
-	__getEntity( sResourceName, item ){
+	__getEntity( sResourceName, item, oOptions ){
 		let _Ancilla = this;
-		return this.query({
-					from: sResourceName,
-					where: ( isNaN( item ) ? item : { 'id': item } )
-			})
+		let _bItemisObject = ( typeof item === 'object' );
+		let _oPredicate = ( _bItemisObject ? ( _bItemisObject && item.oWhere ? item.oWhere : ( item.iTake || item.iSkip || item.aOrderBy ? null : item ) ) : { 'id': item } );
+		let _oQuery = {
+			from: sResourceName,
+			where: _oPredicate,
+			take:  ( ( _bItemisObject && item.iTake ) ? item.iTake : null ),
+			skip:  ( ( _bItemisObject && item.iSkip ) ? item.iSkip : null ),
+			orderBy:  ( ( _bItemisObject && item.aOrderBy ) ? item.aOrderBy : null )
+		};
+		return this.query( _oQuery, oOptions )
 			.catch( function( oError ){
 				_Ancilla.error( '[Error "%o"] failed to load "%o -> %o" from server', oError, sResourceName, item );
 				throw oError ;
@@ -521,11 +547,12 @@ class AncillaClass extends CoreLibrary {
 	 * @example
 	 *   Ancilla.ready();
 	 */
-	ready(){
+	ready( oOptions ){
 		this.info('Starting...');
+		this.__onRedirect = oOptions.fRedirect;
 		// Init WebSocket
 		//var _oOptions = this.getOptions();
-		var _sWsURL = this.getServerAddress( 'websocket' );
+		//var _sWsURL = this.getServerAddress( 'websocket' );
 		var _Ancilla = this;
 		return _Ancilla.__oDBManager.ready()
 			.then( function(){
@@ -536,7 +563,7 @@ class AncillaClass extends CoreLibrary {
 				return _Ancilla.__initWebSocket( _sWsURL );
 			})
 			*/
-			.then(function(oError){
+			.then(function(){
 				_Ancilla.info( 'Ready.' );
 			})
 			.catch(function(oError){

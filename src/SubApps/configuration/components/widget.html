@@ -2,7 +2,7 @@
   <div class="widget-${object.type}">
     <compose
       model.bind="{ oObj: object, sView: view, sViewModel: viewModel, oDgram: dgram }"
-    >
+      view-model="${getModel()}" >
     </compose>
   </div>
 </template>

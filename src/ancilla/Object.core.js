@@ -82,19 +82,25 @@ export class ObjectCore{
   setValue( value ){
     this.update({ value: value});
   }
-  
-  /*
-//TODO: add filter option
-  getParents(){
-    return Ancilla.getObjsByChild( this.id );
-  }
 
+  getParents(){
+    return Ancilla.getRelation({
+      oWhere: {
+        'childID': this.id
+      },
+      aOrderBy: [ 'orderNum', 'id' ]
+    })
+      .then( function( aRelations ){
+        console.error( 'Relazioni trovate: ', aRelations );
+      })
+    ;
+  }
+/*
 //TODO: add filter option
   getChildren(){
     return Ancilla.getObjsByParent( this.id );
   }
-  */
-
+*/
   /**
    * Method used to return the object's widget
    *

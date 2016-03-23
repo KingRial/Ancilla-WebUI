@@ -1,8 +1,8 @@
 <template>
-    <div class="widget-${object.type}">
-        <compose
-            model.bind="{ oObj: object, sView: view, sViewModel: viewModel }"
-            view-model="../widgets/widget.none" >
-        </compose>
-    </div>
+  <div class="widget-${object.type}">
+    <compose
+        model.bind="{ oObj: object, sView: view, sViewModel: viewModel }"
+        view-model="${getModel()}" >
+    </compose>
+  </div>
 </template>
