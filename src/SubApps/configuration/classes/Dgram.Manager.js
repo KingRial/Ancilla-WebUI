@@ -90,18 +90,22 @@ export class DgramManager {
             sUUID: _Dgram.__getUUID( oObj, false )
         });
         // Creating object's endpoint's connections
-        oObj.getParents().forEach( function( oParent ){
-            _Dgram.__addConnector({
-                //sLabel: 'Parent relation',
-                sUUIDSource: _Dgram.__getUUID( oParent, true ),
-                sUUIDTarget: _Dgram.__getUUID( oObj, false )
+        oObj.getParents().then( function( aParents ){
+            aParents.forEach( function( oParent ){
+              _Dgram.__addConnector({
+                  //sLabel: 'Parent relation',
+                  sUUIDSource: _Dgram.__getUUID( oParent, true ),
+                  sUUIDTarget: _Dgram.__getUUID( oObj, false )
+              });
             });
         });
-        oObj.getChildren().forEach( function( oChild ){
-            _Dgram.__addConnector({
-                //sLabel: 'Child relation',
-                sUUIDSource: _Dgram.__getUUID( oObj, true ),
-                sUUIDTarget: _Dgram.__getUUID( oChild, false )
+        oObj.getChildren().then( function( aChildren ){
+            aChildren.forEach( function( oChild ){
+              _Dgram.__addConnector({
+                  //sLabel: 'Child relation',
+                  sUUIDSource: _Dgram.__getUUID( oObj, true ),
+                  sUUIDTarget: _Dgram.__getUUID( oChild, false )
+              });
             });
         });
     }
@@ -157,9 +161,7 @@ export class DgramManager {
     }
 
     __updateDraggable( oElement ){
-console.error('Draggable: ', oElement );
         if( this.__oOptions.bDraggable && oElement ){
-console.error('Drag!');
             this.__getJSPlumbInstance()
                 .draggable( oElement )
             ;

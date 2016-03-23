@@ -1,7 +1,7 @@
 import {CoreViewModel} from '../core/classes/view-model';
 import {DgramManager} from './classes/Dgram.Manager.js';
 import { default as Ancilla } from 'ancilla:Ancilla';
-//import { default as Constant } from 'ancilla:Constants';
+import { default as Constant } from 'ancilla:Constants';
 
 export class Project extends CoreViewModel{
 
@@ -21,6 +21,9 @@ export class Project extends CoreViewModel{
     // Loading first item's in project
     let _View = this;
     return this.getObj({
+      oWhere: {
+        'type': { '!=': Constant._OBJECT_TYPE_TECHNOLOGY }
+      },
       iSkip: this._iSearchOffset,
       iTake: this._iSearchMax
     })

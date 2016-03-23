@@ -32,9 +32,9 @@ export class RelationCore{
    */
   __fillByOptions( oArray ){
   	if( oArray ){
-  		for( var _sField in oArray ){
+  		for( let _sField in oArray ){
         if( oArray.hasOwnProperty( _sField ) ){
-  			     this[ _sField.toLowerCase() ] = oArray[ _sField ];
+  			     this[ _sField ] = oArray[ _sField ];
         }
   		}
   	}

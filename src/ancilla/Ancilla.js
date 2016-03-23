@@ -358,7 +358,7 @@ class AncillaClass extends CoreLibrary {
 				.then( function( getObjResult ){
 					let _aSurroundingIDsToLoad = [];
 					let _aWidgetsIDsToLoad = [];
-					let _aObjs = ( Array.isArray( getObjResult ) ? getObjResult : [ getObjResult ] );
+					let _aObjs = ( Array.isArray( getObjResult ) ? getObjResult : ( getObjResult ? [ getObjResult ] : [] ) );
 					// Checking object's surrounding flag
 					_aObjs.forEach( function( oObj ){
 						if( !_Ancilla.__geEntityCache( 'oLoadedSurroundingsByID', oObj.id ) ){
@@ -411,7 +411,11 @@ class AncillaClass extends CoreLibrary {
 		} else {
 			return this.__getEntity( 'RELATION', item, oOptions )
 				.then( function( aQueryResults ){
-					return _Ancilla.__createEntity( 'Relation', 'oRelations', aQueryResults, oOptions );
+					return _Ancilla.__createEntity( 'Relation', 'oRelations', aQueryResults, oOptions )
+						.then( function( result ){
+							return ( Array.isArray( result ) ? result : ( result ? [ result ] : [] ) );
+						})
+					;
 				})
 			;
 		}
@@ -429,7 +433,11 @@ class AncillaClass extends CoreLibrary {
 		} else {
 			return this.__getEntity( 'WIDGET', item, oOptions )
 				.then( function( aQueryResults ){
-					return _Ancilla.__createEntity( 'Widget', 'oWidgets', aQueryResults, oOptions );
+					return _Ancilla.__createEntity( 'Widget', 'oWidgets', aQueryResults, oOptions )
+						.then( function( result ){
+							return ( Array.isArray( result ) ? result : ( result ? [ result ] : [] ) );
+						})
+					;
 				})
 			;
 		}

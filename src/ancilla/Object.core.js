@@ -83,24 +83,58 @@ export class ObjectCore{
     this.update({ value: value});
   }
 
+// TODO: add otpional filter
   getParents(){
+    let _Obj = this;
     return Ancilla.getRelation({
       oWhere: {
         'childID': this.id
       },
       aOrderBy: [ 'orderNum', 'id' ]
+    }, {
+      bFromCache: true // Assumption: we already have loaded the surrounding
     })
-      .then( function( aRelations ){
-        console.error( 'Relazioni trovate: ', aRelations );
+      .then( function( aRelation ){
+        let _aParents = [];
+        aRelation.forEach(function( oRelation ){
+          let _oParent = Ancilla.getObj( oRelation.parentID );
+          if( _oParent ){
+            _aParents.push( _oParent );
+          } else {
+            _Obj.error( 'Unable to get parent with ID: %o', oRelation.parentID );
+          }
+        });
+        return _aParents;
       })
     ;
   }
-/*
-//TODO: add filter option
+
+// TODO: add otpional filter
   getChildren(){
-    return Ancilla.getObjsByParent( this.id );
+    let _Obj = this;
+    return Ancilla.getRelation({
+      oWhere: {
+        'parentID': this.id
+      },
+      aOrderBy: [ 'orderNum', 'id' ]
+    }, {
+      bFromCache: true // Assumption: we already have loaded the surrounding
+    })
+      .then( function( aRelation ){
+        let _aChildren = [];
+        aRelation.forEach(function( oRelation ){
+          let _oChild = Ancilla.getObj( oRelation.childID );
+          if( _oChild ){
+            _aChildren.push( _oChild );
+          } else {
+            _Obj.error( 'Unable to get child with ID: %o', oRelation.childID );
+          }
+        });
+        return _aChildren;
+      })
+    ;
   }
-*/
+
   /**
    * Method used to return the object's widget
    *

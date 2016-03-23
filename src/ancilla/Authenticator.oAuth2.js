@@ -294,6 +294,7 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
             _Authenticator.error( 'Failed to get a refreshed access token ( %o ); logging out application...', oError );
             return _Authenticator.logOut()
               .then(function(){
+console.error('---------------->TESTING _Authenticator redirect: ', _Authenticator.__oOptions );
                 if( _Authenticator.__oOptions.onLoggingOut ){
                   _Authenticator.__oOptions.onLoggingOut( oError );
                 }

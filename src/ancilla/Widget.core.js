@@ -34,10 +34,9 @@ export class WidgetCore{
    */
   __fillByOptions( oArray ){
   	if( oArray ){
-  		for( var _sKey in oArray ){
-        if( oArray.hasOwnProperty( _sKey ) ){
-          var _sField = _sKey.toLowerCase();
-          var value = oArray[ _sKey ];
+  		for( let _sField in oArray ){
+        if( oArray.hasOwnProperty( _sField ) ){
+          let value = oArray[ _sField ];
           // Parsing JSON strings
           switch( _sField ){
             case 'options':
