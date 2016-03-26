@@ -13,6 +13,7 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
       onLoggingOut: null,
 		}, oOptions );
     super( oOptions );
+    this.__oOptions = oOptions;
     // Storing oAuth Tokens
     this._oAuthStore = new Store({
       sName: 'oAuth2',

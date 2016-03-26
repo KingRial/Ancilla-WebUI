@@ -19,15 +19,11 @@
       </h5>
       <i class="fa fa-cog fa-spin fa-5x"></i>
     </div>
+    <!-- SystemJS -->
     <script src="jspm_packages/system.js"></script>
-    <script src="config.js"></script>
+    <script src="config.jspm.js"></script>
+    <script src="config.ancilla.js"></script>
     <script>
-      System.config({
-        'paths': {
-          'languages:*': 'src/languages/*.js',
-          'ancilla:*': 'src/ancilla/*.js'
-        }
-      });
       System.import('aurelia-bootstrapper');
     </script>
   </body>

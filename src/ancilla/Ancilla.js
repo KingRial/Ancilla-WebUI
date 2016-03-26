@@ -346,9 +346,9 @@ class AncillaClass extends CoreLibrary {
 			bFromServer: false
 		}, oOptions );
 		let _Ancilla = this;
-		let _oEntityCached = _Ancilla.__geEntityCache( 'oObjs', item );
+		let _oEntityCached = _Ancilla.getObjCached( item );
 		if( !oOptions.bFromServer && _oEntityCached ){
-			return _oEntityCached;
+			return Promise.resolve ( _oEntityCached );
 		} else {
 			return this.__getEntity( 'OBJECT', item, oOptions )
 				.then( function( aQueryResults ){
@@ -405,9 +405,9 @@ class AncillaClass extends CoreLibrary {
 			bFromServer: false
 		}, oOptions );
 		let _Ancilla = this;
-		let _oEntityCached = _Ancilla.__geEntityCache( 'oRelations', item );
+		let _oEntityCached = _Ancilla.getRelationCached( item );
 		if( !oOptions.bFromServer && _oEntityCached ){
-			return _oEntityCached;
+			return Promise.resolve ( _oEntityCached );
 		} else {
 			return this.__getEntity( 'RELATION', item, oOptions )
 				.then( function( aQueryResults ){
@@ -427,9 +427,9 @@ class AncillaClass extends CoreLibrary {
 			bFromServer: false
 		}, oOptions );
 		let _Ancilla = this;
-		let _oEntityCached = _Ancilla.__geEntityCache( 'oWidgets', item );
+		let _oEntityCached = _Ancilla.getWidgetCached( item );
 		if( !oOptions.bFromServer && _oEntityCached ){
-			return _oEntityCached;
+			return Promise.resolve ( _oEntityCached );
 		} else {
 			return this.__getEntity( 'WIDGET', item, oOptions )
 				.then( function( aQueryResults ){
@@ -464,6 +464,18 @@ class AncillaClass extends CoreLibrary {
 
 	__geEntityCache( sCacheType, key ){
 		return this.__oMemoryCache[ sCacheType ][ key ];
+	}
+
+	getObjCached( item ){
+		return this.__geEntityCache( 'oObjs', item );
+	}
+
+	getRelationCached( item ){
+		return this.__geEntityCache( 'oRelations', item );
+	}
+
+	getWidgetCached( item ){
+		return this.__geEntityCache( 'oWidgets', item );
 	}
 
 	__seEntityCache( sCacheType, key, value ){

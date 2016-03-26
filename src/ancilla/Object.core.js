@@ -147,7 +147,7 @@ export class ObjectCore{
    *   Object.getWidget();
    */
   getWidget(){
-    return Ancilla.getWidget( this.widgetID, { bFromCache: true } );
+    return Ancilla.getWidgetCached( this.widgetID );
   }
 
   /**
