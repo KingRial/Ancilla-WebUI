@@ -46,6 +46,7 @@
       "jquery": "npm:jquery@^2.2.0",
       "jsplumb": "github:sporritt/jsPlumb@^2.0.7",
       "localForage": "github:localForage/localForage@^1.4.0",
+      "mqtt": "npm:mqtt@^1.13.0",
       "scss": "github:mobilexag/plugin-sass@^0.3.0",
       "text": "github:systemjs/plugin-text@^0.0.3"
     },

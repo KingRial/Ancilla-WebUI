@@ -352,7 +352,9 @@ class AncillaClass extends CoreLibrary {
 		} else {
 			return this.__getEntity( 'OBJECT', item, oOptions )
 				.then( function( aQueryResults ){
-					return _Ancilla.__createEntity( 'Object', 'oObjs', aQueryResults, oOptions );
+					return _Ancilla.__createEntity( 'Object', 'oObjs', aQueryResults, Object.assign({
+						bDisableResultRedux: false
+					}, oOptions ) );
 				})
 				// Collecting surroundings for the current obtained objects, if needed
 				.then( function( getObjResult ){
@@ -512,7 +514,7 @@ class AncillaClass extends CoreLibrary {
 						}
 					}
 				});
-				return ( oOptions.bDisableResultRedux ? ( _aEntities.length > 1 ? _aEntities : _aEntities[ 0 ] ) : _aEntities );
+				return ( oOptions.bDisableResultRedux ? _aEntities : ( _aEntities.length > 1 ? _aEntities : _aEntities[ 0 ] ) );
 			})
 		;
 	}
