@@ -235,7 +235,7 @@ export default class AuthenticatorOAuth2 extends CoreLibrary {
           }
         }, oOptions );
         oOptions = _Authenticator.__parseFetchBodyRequest( oOptions );
-        sURL = ( Tools.isAbsoluteURL( sURL ) ? sURL : _Authenticator.__sBaseURL + sURL );
+        sURL = ( Tools.isAbsoluteURL( sURL ) ? sURL : _Authenticator.__sBaseURL + '/' + sURL );
         _Authenticator.debug( 'Fetching: %o with options: %o', sURL, oOptions );
         return fetch( sURL, oOptions )
           .then( function( oResponse ){ // Handling errors
@@ -312,7 +312,7 @@ console.error('---------------->TESTING _Authenticator redirect: ', _Authenticat
     this.__bRememberMe = bRememberMe;
     let _Authenticator = this;
     // Using fetch instead of "post" because we don't want to start another refreshToken request if this call fails
-    return this.fetch( '/oauth/token', {
+    return this.fetch( Constant._API_CORE_TOPIC_OAUTH_TOKEN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded' // Current oAuth server requires such Content-Type
@@ -348,7 +348,7 @@ console.error('---------------->TESTING _Authenticator redirect: ', _Authenticat
       .then( function( sRefreshToken ){
         if( sRefreshToken ){
           // Using fetch instead of "post" because we don't want to start another refreshToken request if this call fails
-          return _Authenticator.fetch( '/oauth/token', {
+          return _Authenticator.fetch( Constant._API_CORE_TOPIC_OAUTH_TOKEN, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded' // Current oAuth server requires such Content-Type

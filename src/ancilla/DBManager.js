@@ -25,7 +25,7 @@ export default class DBManager extends CoreLibrary {
     });
     this.__aLatestQueriesDone = [];
     this.__oAuthenticator = oOptions.oAuthenticator;
-    this.__sBaseURL = ( oOptions.sBaseURL ? Tools.getProtocol( oOptions.sBaseURL ) + '://' + Tools.getIP( oOptions.sBaseURL ) + ':' + Constant._PORT_SERVER_HTTP + '/' : '' ) + 'breeze';
+    this.__sBaseURL = ( oOptions.sBaseURL ? Tools.getProtocol( oOptions.sBaseURL ) + '://' + Tools.getIP( oOptions.sBaseURL ) + ':' + Constant._PORT_SERVER_HTTP + '/' : '' ) + Constant._API_CORE_TOPIC_BREEZE;
     this.debug( 'Using base URL "%o" to communicate with the server.', this.__sBaseURL );
     // Init Breeze
     this.__oDB = new breeze.EntityManager( this.__sBaseURL );
